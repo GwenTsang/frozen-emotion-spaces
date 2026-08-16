@@ -153,6 +153,13 @@ from .observed_geometry import (
     validate_observed_geometry_analysis,
     write_observed_geometry_analysis,
 )
+from .category_rank import (
+    CATEGORY_RANK_FILES,
+    CATEGORY_RANK_FORMAT,
+    CategoryRankArtifact,
+    validate_category_rank_analysis,
+    write_category_rank_analysis,
+)
 from .conditional_analysis import (
     ConditionalAnalysisArtifact,
     validate_conditional_analysis,
@@ -224,6 +231,9 @@ __all__ = [
     "PooledHiddenStates",
     "PILOT_FILES",
     "PILOT_FORMAT",
+    "CATEGORY_RANK_FILES",
+    "CATEGORY_RANK_FORMAT",
+    "CategoryRankArtifact",
     "RUN_FILES",
     "RUN_FORMAT",
     "RUN_INDEX_FIELDS",
@@ -282,9 +292,11 @@ __all__ = [
     "reliability_table",
     "representation_sum_site_to_cell_centroid_distances",
     "score_observed_run_geometry",
+    "validate_category_rank_analysis",
     "validate_observed_geometry_analysis",
     "validate_observed_counterfactual_analysis",
     "validate_conditional_analysis",
+    "write_category_rank_analysis",
     "write_observed_geometry_analysis",
     "write_observed_counterfactual_analysis",
     "write_conditional_analysis",

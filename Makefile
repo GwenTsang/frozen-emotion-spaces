@@ -23,8 +23,7 @@ OBSERVED := $(WORK)/observed-vs-counterfactual
 NULLS := $(WORK)/matched-nulls
 MANIFESTS := $(WORK)/manifests
 
-.PHONY: help setup test verify-inputs extract primary conditional geometry pilots observed nulls replicate fetch-golden verify-golden
-
+.PHONY: help setup test verify-inputs extract primary conditional category-rank geometry pilots observed nulls replicate fetch-golden verify-golden
 help:
 	@echo "Frozen Emotion Spaces replication targets"
 	@echo "  setup          install Python 3.12.11 and the locked environment"
@@ -33,8 +32,8 @@ help:
 	@echo "  extract        extract the pinned Crowd RoBERTa all-layer artifact (CUDA recommended)"
 	@echo "  primary        run the Crowd L12 frozen probe"
 	@echo "  conditional    run A, H, AH and their paired grouped-bootstrap analysis"
+	@echo "  category-rank  bootstrap category rank stability + A-vs-H rank association"
 	@echo "  geometry       score observed category sites in A and H"
-	@echo "  pilots         run A/H Contrast-Representation pilots and group sensitivities"
 	@echo "  observed       compare observed sites with counterfactual pilot distributions"
 	@echo "  nulls          run the two 1,000-draw mechanism-matched null analyses"
 	@echo "  replicate      execute every completed experiment in dependency order"
@@ -90,6 +89,11 @@ $(ANALYSIS)/conditional-primary/metadata.json: $(MANIFESTS)/conditional-A-H-AH-r
 
 conditional: $(ANALYSIS)/conditional-primary/metadata.json
 
+$(ANALYSIS)/category-rank/metadata.json: $(CONDITIONAL)/A-appraisal-logloss/metadata.json $(CONDITIONAL)/H-roberta-L12-logloss/metadata.json
+	$(FES) write-category-rank-analysis --A-run $(CONDITIONAL)/A-appraisal-logloss --H-run roberta-base=$(CONDITIONAL)/H-roberta-L12-logloss --output $(@D) --n-bootstrap 2000 --seed 20240804
+
+category-rank: $(ANALYSIS)/category-rank/metadata.json
+
 $(GEOMETRY)/A-appraisal/metadata.json: $(CONDITIONAL)/A-appraisal-logloss/metadata.json
 	$(FES) analyze-observed-geometry --archive $(CROWD_ARCHIVE) --splits $(SPLITS) --source-run $(CONDITIONAL)/A-appraisal-logloss --output $(@D)
 
@@ -132,7 +136,8 @@ $(NULLS)/H-PCA21-centroids-null1000/metadata.json: $(CONDITIONAL)/H-roberta-L12-
 
 nulls: $(NULLS)/A-centroids-null1000/metadata.json $(NULLS)/H-PCA21-centroids-null1000/metadata.json
 
-replicate: test verify-inputs $(MANIFESTS)/embedding_index.json primary conditional geometry pilots observed nulls
+replicate: test verify-inputs $(MANIFESTS)/embedding_index.json primary conditional category-rank geometry pilots observed nulls
+
 
 fetch-golden:
 	python3 scripts/fetch_artifacts.py --destination artifacts/downloads/replication-20260816

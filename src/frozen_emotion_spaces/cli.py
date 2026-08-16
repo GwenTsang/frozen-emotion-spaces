@@ -30,10 +30,10 @@ from .counterfactual_index import write_counterfactual_index
 from .counterfactual import validate_counterfactual_pilot
 from .counterfactual_observed import write_observed_counterfactual_analysis
 from .counterfactual_nulls import run_observed_matched_nulls
+from .category_rank import write_category_rank_analysis
 from .conditional_analysis import write_conditional_analysis
 from .observed_geometry import write_observed_geometry_analysis
 from .probes import DEFAULT_BLOCK_MULTIPLIER_GRID, DEFAULT_C_GRID
-from .run_index import write_crowd_run_index
 from .representation_index import write_representation_run_index
 from .splits import read_split_bundle
 
@@ -236,6 +236,24 @@ def build_parser() -> argparse.ArgumentParser:
     )
     conditional_analysis.add_argument("--seed", type=int, default=20240804)
     conditional_analysis.set_defaults(handler=_write_conditional_analysis)
+
+    category_rank = commands.add_parser(
+        "write-category-rank-analysis",
+        help="bootstrap category rank stability and A-vs-H rank association (Experiment C secondary)",
+    )
+    category_rank.add_argument("--A-run", type=Path, required=True)
+    category_rank.add_argument(
+        "--H-run",
+        action="append",
+        required=True,
+        metavar="MODEL=PATH",
+        help="one H run per model: MODEL=PATH (repeatable)",
+    )
+    category_rank.add_argument("--AH-run", type=Path, required=False, default=None)
+    category_rank.add_argument("--output", type=Path, required=True)
+    category_rank.add_argument("--n-bootstrap", type=_positive_int, default=2000)
+    category_rank.add_argument("--seed", type=int, default=20240804)
+    category_rank.set_defaults(handler=_write_category_rank_analysis)
 
     observed_geometry = commands.add_parser(
         "analyze-observed-geometry",
@@ -566,6 +584,39 @@ def _write_conditional_analysis(arguments: argparse.Namespace) -> None:
             {
                 "directory": str(analysis.directory),
                 "format": analysis.metadata["analysis_format"],
+            },
+            sort_keys=True,
+        )
+    )
+
+
+def _write_category_rank_analysis(arguments: argparse.Namespace) -> None:
+    # parse H-run specs MODEL=PATH
+    H_runs: dict[str, Path] = {}
+    for spec in arguments.H_run:
+        if "=" not in spec:
+            raise ValueError(f"--H-run must be MODEL=PATH, got {spec!r}")
+        model, path = spec.split("=", 1)
+        model = model.strip()
+        path = path.strip()
+        if not model or not path:
+            raise ValueError(f"--H-run must be MODEL=PATH, got {spec!r}")
+        if model in H_runs:
+            raise ValueError(f"duplicate --H-run model key: {model!r}")
+        H_runs[model] = Path(path)
+    artifact = write_category_rank_analysis(
+        arguments.output,
+        A_run=arguments.A_run,
+        H_runs=H_runs,
+        AH_run=arguments.AH_run,
+        n_bootstrap=arguments.n_bootstrap,
+        seed=arguments.seed,
+    )
+    print(
+        json.dumps(
+            {
+                "directory": str(artifact.directory),
+                "format": artifact.metadata["analysis_format"],
             },
             sort_keys=True,
         )
