@@ -1,0 +1,24 @@
+[
+  {
+    "class_weight": null,
+    "dataset": "crowd",
+    "embedding_layer_sha256": "30221a68f132a953c4902ff94638a248e399e28b3e08bfd635ed0e754a850276",
+    "embedding_metadata_sha256": "d14f94e1a7e6476e46ebd906602d8082fcc6dece75d022947b4304dc34040dac",
+    "index_format": "frozen-emotion-spaces-crowd-run-index-reconstruction-v1",
+    "inner_split_sha256": "3ae65199ec734ed32f0a7a86a20b1d486010052894898958fd77497ea4c67357",
+    "layer": 12,
+    "metadata_sha256": "edf8df3fc6fc4d717f14735029875a03b75c981faa69e59a4ff3e060080b845a",
+    "mode": "pretrained",
+    "model_key": "roberta-base",
+    "n_items": 6600,
+    "ordered_item_target_sha256": "e76c2ce1241057c20a6d3faa3835900a1d0d346a53a20a2c1187125fc5d1878f",
+    "outer_split_sha256": "b0da24a812bd298350a643788a32ea947f8081c8b74ece8297cd0af94ea21b2b",
+    "pooling": "mean",
+    "revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+    "run_format": "frozen-emotion-spaces-crowd-layer-probe-reconstruction-v1",
+    "run_path": "H-roberta-L12-mean-logloss",
+    "selection_metric": "log_loss",
+    "target": "y_writer",
+    "text_variant": "masked"
+  }
+]

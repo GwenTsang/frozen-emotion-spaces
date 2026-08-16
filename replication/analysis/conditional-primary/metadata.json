@@ -1,0 +1,46 @@
+{
+  "analysis_format": "frozen-emotion-spaces-conditional-analysis-reconstruction-v1",
+  "class_names": [
+    "anger",
+    "boredom",
+    "disgust",
+    "fear",
+    "guilt",
+    "joy",
+    "pride",
+    "relief",
+    "sadness",
+    "shame",
+    "surprise",
+    "trust",
+    "no-emotion"
+  ],
+  "delta_direction": "mean_item_log_loss_bits(H)-mean_item_log_loss_bits(AH)",
+  "files": {
+    "bootstrap_H_minus_AH.json": {
+      "bytes": 316,
+      "sha256": "84c3450a1d9bfefb324f4c27e903b4aa5ba191bb0aecd262fd05ca531f3c557d"
+    },
+    "bootstrap_H_minus_AH.npy": {
+      "bytes": 16128,
+      "sha256": "301577a0a038996c208308352d604012b9f9789413ac6a9874b31738deda1e99"
+    },
+    "metrics.parquet": {
+      "bytes": 5790,
+      "sha256": "aa5ab665f957ef5f7a3dc748763626a4728d1b9125785527df639ba69ec70c68"
+    }
+  },
+  "implementation_sha256": {
+    "conditional_analysis.py": "688a9daf4266c9b0f1cea885cf90e24aaecd9a7f5adc5669b8a0256bb773daaf",
+    "metrics.py": "2c4b2aeb8917bc6421babad45334739e784e58baef3d237e56f351d7c601d58d"
+  },
+  "input_run_metadata_sha256": {
+    "A": "7c9840c8364d3412df3d45f1a0304fbf41f9ff4d821e8fc9a45bcdd4782407bc",
+    "AH": "a041d65960e7f552ee4bf05c6387822c2ba443e4d0950d8f7de294c54e4d4a1b",
+    "H": "171cec775c9e07197f7db3f9523767383810da7cbc27bfb4a9548d8d1cc9c4f3"
+  },
+  "n_bootstrap": 2000,
+  "n_items": 6600,
+  "seed": 20240804,
+  "status": "new_replication_not_historical_recovery"
+}

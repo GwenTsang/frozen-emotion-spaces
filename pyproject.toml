@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling>=1.21,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "frozen-emotion-spaces-reconstructed"
+version = "0.1.0"
+description = "Provenance-explicit clean-room reconstruction and emotion-space replications."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Gwendal Tsang" }]
+keywords = ["emotion", "conceptual spaces", "transformers", "probing", "reproducibility"]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy==2.2.3",
+    "pandas==2.2.3",
+    "scipy==1.15.2",
+    "scikit-learn==1.6.1",
+    "iterative-stratification==0.1.9",
+    "PyYAML==6.0.2",
+    "torch==2.6.0",
+    "transformers==4.49.0",
+    "huggingface-hub==0.29.3",
+    "sentencepiece==0.2.0",
+    "safetensors==0.5.3",
+    "protobuf>=5.29,<6",
+    "joblib==1.4.2",
+    "pyarrow==18.1.0",
+    "matplotlib==3.10.0",
+    "seaborn==0.13.2",
+    "psutil==7.0.0",
+    "tqdm==4.67.1",
+    "Jinja2==3.1.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.5"]
+
+[project.scripts]
+frozen-emotion-spaces = "frozen_emotion_spaces.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/frozen_emotion_spaces"]
+
+[tool.uv]
+package = true
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]

@@ -1,0 +1,17 @@
+[
+  {
+    "artifact_format": "frozen-emotion-spaces-reconstruction-v1",
+    "artifact_path": "embeddings/crowd/roberta-base/e2da8e2f811d1448a5b465c236feacd80ffbac7b/pretrained/masked/maxlen-256",
+    "dataset": "crowd",
+    "index_format": "frozen-emotion-spaces-embedding-index-reconstruction-v1",
+    "max_length": 256,
+    "metadata_sha256": "d14f94e1a7e6476e46ebd906602d8082fcc6dece75d022947b4304dc34040dac",
+    "mode": "pretrained",
+    "model_key": "roberta-base",
+    "n_items": 6600,
+    "ordered_item_text_pairs_sha256": "8ae99e3ceb56016324d5c5385c2b93239a2c8cb7d2d369dc43beae24e68fbb81",
+    "revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+    "text_variant": "masked",
+    "tokenizer_is_fast": true
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "ci_high": 0.30522008265074746,
+  "ci_low": 0.25182703671745527,
+  "confidence_level": 0.95,
+  "n_bootstrap": 2000,
+  "n_groups": 2336,
+  "observed_a": 2.0351659538939697,
+  "observed_b": 1.7568947854899784,
+  "observed_delta": 0.27827116840399135,
+  "seed": 20240804,
+  "standard_error": 0.013432677843909373
+}

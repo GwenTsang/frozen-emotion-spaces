@@ -1,0 +1,20 @@
+[
+  {
+    "draws_sha256": "e425720fa513e9cc93616fbb1f424fac73e23ed1c2c82f83ddc8159790d5dc11",
+    "fold_summaries_sha256": "8065ecda8a69f0381f4761784e35885173e529bfec81314b87be629b71c1bb0c",
+    "index_format": "frozen-emotion-spaces-matched-null-index-v1",
+    "metadata_sha256": "053618ddd1136bb7723128c649f93793836876e23f2ed065619d0f55ab2d9a12",
+    "n_draws_per_fold_and_mechanism": 1000,
+    "run_path": "A-centroids-null1000",
+    "space": "A_STANDARDIZED"
+  },
+  {
+    "draws_sha256": "5996e0d85ce80fec33cfbdaa36dee736fd62f60988d30c752de4879d2c6294a0",
+    "fold_summaries_sha256": "eb40feb65fc1a72570b2f3afd44d665d4c51b3e949ecabff4d8c0e30f2300c43",
+    "index_format": "frozen-emotion-spaces-matched-null-index-v1",
+    "metadata_sha256": "694b13dc0decaa5d7369905f02c3f1532f9d46d1d54b901352b0da318b9d484b",
+    "n_draws_per_fold_and_mechanism": 1000,
+    "run_path": "H-PCA21-centroids-null1000",
+    "space": "H_PCA"
+  }
+]

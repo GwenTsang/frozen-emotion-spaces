@@ -1,0 +1,19 @@
+{
+  "analysis_format": "frozen-emotion-spaces-observed-geometry-reconstruction-v1",
+  "domain": "outer_train_only",
+  "feature_matrix_sha256": "cff4f92e68969832e019df7c5ce99e1d3ca559a2a0877a50c463c7cc1a6f8b4d",
+  "files": {
+    "scores.parquet": {
+      "bytes": 13512,
+      "sha256": "0b40aabfdd82dfa77bc20ec865d58b35ae01aa4b585a3bee0748f4a9bbd6ba1f"
+    }
+  },
+  "implementation_sha256": "64a936f5aa0de20724b99b7f8698e31cd6bf6a42bb5a3e26807d98245969df95",
+  "n_features": 21,
+  "n_items": 6600,
+  "ordinary_score_definition": "IgorDouven/Concept_Learning calc(), commit 2325717f68f9eecbc85cfa7d7e5ada0dc7e95679",
+  "outer_split_sha256": "b0da24a812bd298350a643788a32ea947f8081c8b74ece8297cd0af94ea21b2b",
+  "representation": "A",
+  "source_run_metadata_sha256": "7c9840c8364d3412df3d45f1a0304fbf41f9ff4d821e8fc9a45bcdd4782407bc",
+  "status": "new_replication_diagnostic_not_historical_recovery"
+}

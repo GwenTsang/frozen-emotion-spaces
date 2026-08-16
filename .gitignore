@@ -1,0 +1,41 @@
+# Python environments and caches
+.venv*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local inputs: see DATA_AVAILABILITY.md
+datasets/
+*.zip
+
+# Expensive or generated experiment products
+work/
+cache*/
+results*/
+counterfactual-pilot/
+matched-nulls/
+artifacts/downloads/
+artifacts/staging/
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+
+# LaTeX build products
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/

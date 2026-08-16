@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software or its replication artifacts, please cite it as below and cite the datasets listed in CITATION.md."
+title: "Frozen Emotion Spaces: clean-room reconstruction and replications"
+type: software
+authors:
+  - family-names: Tsang
+    given-names: Gwendal
+version: 0.1.0
+date-released: 2026-08-16
+license: MIT
+repository-code: "https://github.com/GwenTsang/frozen-emotion-spaces"
+keywords:
+  - emotion representation
+  - conceptual spaces
+  - frozen transformers
+  - probing
+  - reproducibility

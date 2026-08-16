@@ -1,0 +1,22 @@
+{
+  "analysis_format": "frozen-emotion-spaces-observed-counterfactual-analysis-v1",
+  "counterfactuals_per_fold": 200,
+  "feature_matrix_sha256": "9ddbff5e9f8a9752aaf524086cf994bed93fc346e5f2472c97362d214fbb8f86",
+  "files": {
+    "scores.parquet": {
+      "bytes": 16262,
+      "sha256": "a1c63f3683286446809492f0b2e08166bd135a4f05e3e62a6f84f0f8ef35380b"
+    }
+  },
+  "implementation_sha256": "53f856aa9d900f8abec0263c76f11741a8ad6b75ba905f752a125ee18a3ae030",
+  "n_folds": 5,
+  "n_items": 6600,
+  "n_sites": 13,
+  "outer_split_sha256": "b0da24a812bd298350a643788a32ea947f8081c8b74ece8297cd0af94ea21b2b",
+  "percentile_definition": "add-one smoothed favorable empirical fraction: contrast random<=observed; representation random>=observed",
+  "pilot_metadata_sha256": "d8918e3844cb29d973c6ec245e7920b34d2b96d355f77ad43abba16e0a6612bc",
+  "site_family": "observed_class_centroids",
+  "source_run_metadata_sha256": "171cec775c9e07197f7db3f9523767383810da7cbc27bfb4a9548d8d1cc9c4f3",
+  "space": "H_PCA",
+  "status": "exploratory_observed_vs_counterfactual_not_confirmatory"
+}

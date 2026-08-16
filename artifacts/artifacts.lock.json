@@ -1,0 +1,528 @@
+{
+  "artifacts": [
+    {
+      "bytes": 316,
+      "logical_path": "analysis/conditional-primary/bootstrap_H_minus_AH.json",
+      "remote_path": "objects/sha256/84/84c3450a1d9bfefb324f4c27e903b4aa5ba191bb0aecd262fd05ca531f3c557d/bootstrap_H_minus_AH.json",
+      "role": "validation_output",
+      "sha256": "84c3450a1d9bfefb324f4c27e903b4aa5ba191bb0aecd262fd05ca531f3c557d"
+    },
+    {
+      "bytes": 16128,
+      "logical_path": "analysis/conditional-primary/bootstrap_H_minus_AH.npy",
+      "remote_path": "objects/sha256/30/301577a0a038996c208308352d604012b9f9789413ac6a9874b31738deda1e99/bootstrap_H_minus_AH.npy",
+      "role": "validation_output",
+      "sha256": "301577a0a038996c208308352d604012b9f9789413ac6a9874b31738deda1e99"
+    },
+    {
+      "bytes": 1419,
+      "logical_path": "analysis/conditional-primary/metadata.json",
+      "remote_path": "objects/sha256/ba/bad8469a77213d979d79902b5aa6f76d151d02f0511cd3573f9c5f1f73303898/metadata.json",
+      "role": "validation_output",
+      "sha256": "bad8469a77213d979d79902b5aa6f76d151d02f0511cd3573f9c5f1f73303898"
+    },
+    {
+      "bytes": 5790,
+      "logical_path": "analysis/conditional-primary/metrics.parquet",
+      "remote_path": "objects/sha256/aa/aa5ab665f957ef5f7a3dc748763626a4728d1b9125785527df639ba69ec70c68/metrics.parquet",
+      "role": "validation_output",
+      "sha256": "aa5ab665f957ef5f7a3dc748763626a4728d1b9125785527df639ba69ec70c68"
+    },
+    {
+      "bytes": 263577728,
+      "logical_path": "cache-fast/embeddings/crowd/roberta-base/e2da8e2f811d1448a5b465c236feacd80ffbac7b/pretrained/masked/maxlen-256/first.npy",
+      "remote_path": "objects/sha256/7c/7c7b6e3b4c6a1c7cfb1276dc93d15c5bc8a335d3a7185c2dfff0d8fa1e1247d0/first.npy",
+      "role": "expensive_cache",
+      "sha256": "7c7b6e3b4c6a1c7cfb1276dc93d15c5bc8a335d3a7185c2dfff0d8fa1e1247d0"
+    },
+    {
+      "bytes": 132128,
+      "logical_path": "cache-fast/embeddings/crowd/roberta-base/e2da8e2f811d1448a5b465c236feacd80ffbac7b/pretrained/masked/maxlen-256/item_ids.npy",
+      "remote_path": "objects/sha256/0d/0da89eef998cf866279a25d538a26243b231b5593ba4ade48b7f92bd33038ee3/item_ids.npy",
+      "role": "expensive_cache",
+      "sha256": "0da89eef998cf866279a25d538a26243b231b5593ba4ade48b7f92bd33038ee3"
+    },
+    {
+      "bytes": 263577728,
+      "logical_path": "cache-fast/embeddings/crowd/roberta-base/e2da8e2f811d1448a5b465c236feacd80ffbac7b/pretrained/masked/maxlen-256/mean.npy",
+      "remote_path": "objects/sha256/7d/7dd78bcc3cac70ca1b3beb47fcfa0a5dde56f954e67ef8d27901437e750d0ece/mean.npy",
+      "role": "expensive_cache",
+      "sha256": "7dd78bcc3cac70ca1b3beb47fcfa0a5dde56f954e67ef8d27901437e750d0ece"
+    },
+    {
+      "bytes": 4117,
+      "logical_path": "cache-fast/embeddings/crowd/roberta-base/e2da8e2f811d1448a5b465c236feacd80ffbac7b/pretrained/masked/maxlen-256/metadata.json",
+      "remote_path": "objects/sha256/d1/d14f94e1a7e6476e46ebd906602d8082fcc6dece75d022947b4304dc34040dac/metadata.json",
+      "role": "expensive_cache",
+      "sha256": "d14f94e1a7e6476e46ebd906602d8082fcc6dece75d022947b4304dc34040dac"
+    },
+    {
+      "bytes": 28,
+      "logical_path": "cache-fast/tokenizer_backend.json",
+      "remote_path": "objects/sha256/07/07c11930e11e0b9410c987699a9a392c7ab67a76f1587a7ddd15396d0f4420af/tokenizer_backend.json",
+      "role": "expensive_cache",
+      "sha256": "07c11930e11e0b9410c987699a9a392c7ab67a76f1587a7ddd15396d0f4420af"
+    },
+    {
+      "bytes": 132986,
+      "logical_path": "counterfactual-pilot/A-standardized-group150-pilot200/constellations.parquet",
+      "remote_path": "objects/sha256/d8/d814d88ac2d4e537a85e1bbb125408cda1599aa42e52be8a5750e4fe6774f2ac/constellations.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "d814d88ac2d4e537a85e1bbb125408cda1599aa42e52be8a5750e4fe6774f2ac"
+    },
+    {
+      "bytes": 813342,
+      "logical_path": "counterfactual-pilot/A-standardized-group150-pilot200/learnability.parquet",
+      "remote_path": "objects/sha256/18/18363225d2cc412f58409a5788de8eff2a8c5752c351aead9d5fab5882ee6483/learnability.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "18363225d2cc412f58409a5788de8eff2a8c5752c351aead9d5fab5882ee6483"
+    },
+    {
+      "bytes": 3291,
+      "logical_path": "counterfactual-pilot/A-standardized-group150-pilot200/metadata.json",
+      "remote_path": "objects/sha256/2e/2e7161cc515a120353d4b62425a4f81d2c9966f2e34f2f522731db941974cbaa/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "2e7161cc515a120353d4b62425a4f81d2c9966f2e34f2f522731db941974cbaa"
+    },
+    {
+      "bytes": 8243,
+      "logical_path": "counterfactual-pilot/A-standardized-group150-pilot200/regressions.parquet",
+      "remote_path": "objects/sha256/30/3035d4c3e6f91e02b7277f78d3b72efa9617fed2f233944408b48a2b9f8c0a0d/regressions.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "3035d4c3e6f91e02b7277f78d3b72efa9617fed2f233944408b48a2b9f8c0a0d"
+    },
+    {
+      "bytes": 2939,
+      "logical_path": "counterfactual-pilot/A-standardized-group150-pilot200/transforms.npz",
+      "remote_path": "objects/sha256/0d/0d52942f0823175451457bfbe33c39f63b985e3c6c76b3dae196b84a5361b7ac/transforms.npz",
+      "role": "golden_experiment_output",
+      "sha256": "0d52942f0823175451457bfbe33c39f63b985e3c6c76b3dae196b84a5361b7ac"
+    },
+    {
+      "bytes": 22163,
+      "logical_path": "counterfactual-pilot/A-standardized-pilot20/constellations.parquet",
+      "remote_path": "objects/sha256/08/0881b88c56f5e03cba668155b43f3f4bfc7554116a4ee049c484e14e9425f9d0/constellations.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "0881b88c56f5e03cba668155b43f3f4bfc7554116a4ee049c484e14e9425f9d0"
+    },
+    {
+      "bytes": 53207,
+      "logical_path": "counterfactual-pilot/A-standardized-pilot20/learnability.parquet",
+      "remote_path": "objects/sha256/a8/a8a1a67fdefb88dd423b7c672cdc3b60f03054fb02c09e1c957749eed4016bef/learnability.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "a8a1a67fdefb88dd423b7c672cdc3b60f03054fb02c09e1c957749eed4016bef"
+    },
+    {
+      "bytes": 2010,
+      "logical_path": "counterfactual-pilot/A-standardized-pilot20/metadata.json",
+      "remote_path": "objects/sha256/d9/d900606ffc5de75d796118df5c7e82ff4074c5305fa4be6eeb6a339dbc8b03ee/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "d900606ffc5de75d796118df5c7e82ff4074c5305fa4be6eeb6a339dbc8b03ee"
+    },
+    {
+      "bytes": 6688,
+      "logical_path": "counterfactual-pilot/A-standardized-pilot20/regressions.parquet",
+      "remote_path": "objects/sha256/d1/d14a846dd6e57fa14e7093e775e32a437c70b55819ff80dd9e8460aa423d888e/regressions.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "d14a846dd6e57fa14e7093e775e32a437c70b55819ff80dd9e8460aa423d888e"
+    },
+    {
+      "bytes": 2939,
+      "logical_path": "counterfactual-pilot/A-standardized-pilot20/transforms.npz",
+      "remote_path": "objects/sha256/0d/0d52942f0823175451457bfbe33c39f63b985e3c6c76b3dae196b84a5361b7ac/transforms.npz",
+      "role": "golden_experiment_output",
+      "sha256": "0d52942f0823175451457bfbe33c39f63b985e3c6c76b3dae196b84a5361b7ac"
+    },
+    {
+      "bytes": 132986,
+      "logical_path": "counterfactual-pilot/A-standardized-pilot200/constellations.parquet",
+      "remote_path": "objects/sha256/d8/d814d88ac2d4e537a85e1bbb125408cda1599aa42e52be8a5750e4fe6774f2ac/constellations.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "d814d88ac2d4e537a85e1bbb125408cda1599aa42e52be8a5750e4fe6774f2ac"
+    },
+    {
+      "bytes": 839415,
+      "logical_path": "counterfactual-pilot/A-standardized-pilot200/learnability.parquet",
+      "remote_path": "objects/sha256/b4/b43cdb5f20b1d9845873ae79d572a8cc8cf087c89dc99513a4fa85cf68e2018b/learnability.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "b43cdb5f20b1d9845873ae79d572a8cc8cf087c89dc99513a4fa85cf68e2018b"
+    },
+    {
+      "bytes": 2014,
+      "logical_path": "counterfactual-pilot/A-standardized-pilot200/metadata.json",
+      "remote_path": "objects/sha256/48/482c3c30d03c11042e4ce08d8701310ffe789a77810e057cc0212c5bc7898dce/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "482c3c30d03c11042e4ce08d8701310ffe789a77810e057cc0212c5bc7898dce"
+    },
+    {
+      "bytes": 6688,
+      "logical_path": "counterfactual-pilot/A-standardized-pilot200/regressions.parquet",
+      "remote_path": "objects/sha256/06/062e96ff3bd0b3072c4781694f71cb22b2ffbaa96e9eaf9d9f2cf6a7a152f66f/regressions.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "062e96ff3bd0b3072c4781694f71cb22b2ffbaa96e9eaf9d9f2cf6a7a152f66f"
+    },
+    {
+      "bytes": 2939,
+      "logical_path": "counterfactual-pilot/A-standardized-pilot200/transforms.npz",
+      "remote_path": "objects/sha256/0d/0d52942f0823175451457bfbe33c39f63b985e3c6c76b3dae196b84a5361b7ac/transforms.npz",
+      "role": "golden_experiment_output",
+      "sha256": "0d52942f0823175451457bfbe33c39f63b985e3c6c76b3dae196b84a5361b7ac"
+    },
+    {
+      "bytes": 133183,
+      "logical_path": "counterfactual-pilot/H-PCA21-group150-pilot200/constellations.parquet",
+      "remote_path": "objects/sha256/b9/b94c4272cff967c93701795b2d9c783e9a46c6f9f106ba12fbc1906b0ed4a6a8/constellations.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "b94c4272cff967c93701795b2d9c783e9a46c6f9f106ba12fbc1906b0ed4a6a8"
+    },
+    {
+      "bytes": 818342,
+      "logical_path": "counterfactual-pilot/H-PCA21-group150-pilot200/learnability.parquet",
+      "remote_path": "objects/sha256/9f/9f28f2ad61c1e8acf3576070f21468002917e2551d9ee9594ccda79723946311/learnability.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "9f28f2ad61c1e8acf3576070f21468002917e2551d9ee9594ccda79723946311"
+    },
+    {
+      "bytes": 3345,
+      "logical_path": "counterfactual-pilot/H-PCA21-group150-pilot200/metadata.json",
+      "remote_path": "objects/sha256/1c/1caff71c0767b50286a279e06aef31b6bf1fd7e809d5a6cc160306856d36800a/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "1caff71c0767b50286a279e06aef31b6bf1fd7e809d5a6cc160306856d36800a"
+    },
+    {
+      "bytes": 8243,
+      "logical_path": "counterfactual-pilot/H-PCA21-group150-pilot200/regressions.parquet",
+      "remote_path": "objects/sha256/ba/bafb01dcbd3dfaee31ef999c9f77bdf8600ab20834055551a03ad8ccc2c5a9f9/regressions.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "bafb01dcbd3dfaee31ef999c9f77bdf8600ab20834055551a03ad8ccc2c5a9f9"
+    },
+    {
+      "bytes": 701991,
+      "logical_path": "counterfactual-pilot/H-PCA21-group150-pilot200/transforms.npz",
+      "remote_path": "objects/sha256/22/228211b8c16f4498f7928537fa414c6cb1b24997b00c3e00147b3dd2f3f8ce97/transforms.npz",
+      "role": "golden_experiment_output",
+      "sha256": "228211b8c16f4498f7928537fa414c6cb1b24997b00c3e00147b3dd2f3f8ce97"
+    },
+    {
+      "bytes": 22140,
+      "logical_path": "counterfactual-pilot/H-PCA21-pilot20/constellations.parquet",
+      "remote_path": "objects/sha256/30/30dba9eea2fa993405a890455aa79b9d315e5dffa2ae598de13f4aa22c1ca1c3/constellations.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "30dba9eea2fa993405a890455aa79b9d315e5dffa2ae598de13f4aa22c1ca1c3"
+    },
+    {
+      "bytes": 53129,
+      "logical_path": "counterfactual-pilot/H-PCA21-pilot20/learnability.parquet",
+      "remote_path": "objects/sha256/74/74926d5f223468da9108d6cac0a7207a538391af106f0672b95631d4e146fdef/learnability.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "74926d5f223468da9108d6cac0a7207a538391af106f0672b95631d4e146fdef"
+    },
+    {
+      "bytes": 2064,
+      "logical_path": "counterfactual-pilot/H-PCA21-pilot20/metadata.json",
+      "remote_path": "objects/sha256/55/5527f6a163a64307dd002f1c1e2c4afe687bb2a331d734e6ecb1c7151e55ba99/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "5527f6a163a64307dd002f1c1e2c4afe687bb2a331d734e6ecb1c7151e55ba99"
+    },
+    {
+      "bytes": 6688,
+      "logical_path": "counterfactual-pilot/H-PCA21-pilot20/regressions.parquet",
+      "remote_path": "objects/sha256/24/249ba0a4b0774d0552b56c244345b32e42701f30c304d45d43ef1e561f453a74/regressions.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "249ba0a4b0774d0552b56c244345b32e42701f30c304d45d43ef1e561f453a74"
+    },
+    {
+      "bytes": 702008,
+      "logical_path": "counterfactual-pilot/H-PCA21-pilot20/transforms.npz",
+      "remote_path": "objects/sha256/72/72e8fafdf610ef530919dc7895349f75dd74d42996e16a7b633c7bec867fe5f7/transforms.npz",
+      "role": "golden_experiment_output",
+      "sha256": "72e8fafdf610ef530919dc7895349f75dd74d42996e16a7b633c7bec867fe5f7"
+    },
+    {
+      "bytes": 133183,
+      "logical_path": "counterfactual-pilot/H-PCA21-pilot200/constellations.parquet",
+      "remote_path": "objects/sha256/b9/b94c4272cff967c93701795b2d9c783e9a46c6f9f106ba12fbc1906b0ed4a6a8/constellations.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "b94c4272cff967c93701795b2d9c783e9a46c6f9f106ba12fbc1906b0ed4a6a8"
+    },
+    {
+      "bytes": 840284,
+      "logical_path": "counterfactual-pilot/H-PCA21-pilot200/learnability.parquet",
+      "remote_path": "objects/sha256/c2/c22eb95333e47d8f549226d174e558b53823a53ab99488de668ccb1e311893a3/learnability.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "c22eb95333e47d8f549226d174e558b53823a53ab99488de668ccb1e311893a3"
+    },
+    {
+      "bytes": 2068,
+      "logical_path": "counterfactual-pilot/H-PCA21-pilot200/metadata.json",
+      "remote_path": "objects/sha256/d8/d8918e3844cb29d973c6ec245e7920b34d2b96d355f77ad43abba16e0a6612bc/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "d8918e3844cb29d973c6ec245e7920b34d2b96d355f77ad43abba16e0a6612bc"
+    },
+    {
+      "bytes": 6688,
+      "logical_path": "counterfactual-pilot/H-PCA21-pilot200/regressions.parquet",
+      "remote_path": "objects/sha256/cc/cc63b41cd764dc5abad30bf7d0c41ef3ef2007f4ee3a4ce6031fd22d1f14e294/regressions.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "cc63b41cd764dc5abad30bf7d0c41ef3ef2007f4ee3a4ce6031fd22d1f14e294"
+    },
+    {
+      "bytes": 701991,
+      "logical_path": "counterfactual-pilot/H-PCA21-pilot200/transforms.npz",
+      "remote_path": "objects/sha256/22/228211b8c16f4498f7928537fa414c6cb1b24997b00c3e00147b3dd2f3f8ce97/transforms.npz",
+      "role": "golden_experiment_output",
+      "sha256": "228211b8c16f4498f7928537fa414c6cb1b24997b00c3e00147b3dd2f3f8ce97"
+    },
+    {
+      "bytes": 900,
+      "logical_path": "geometry-diagnostics/A-appraisal/metadata.json",
+      "remote_path": "objects/sha256/8e/8ea483b3313457870063550fbbb6a85aec0bc6b0284f24e9943fd24927ea57f3/metadata.json",
+      "role": "validation_output",
+      "sha256": "8ea483b3313457870063550fbbb6a85aec0bc6b0284f24e9943fd24927ea57f3"
+    },
+    {
+      "bytes": 13512,
+      "logical_path": "geometry-diagnostics/A-appraisal/scores.parquet",
+      "remote_path": "objects/sha256/0b/0b40aabfdd82dfa77bc20ec865d58b35ae01aa4b585a3bee0748f4a9bbd6ba1f/scores.parquet",
+      "role": "validation_output",
+      "sha256": "0b40aabfdd82dfa77bc20ec865d58b35ae01aa4b585a3bee0748f4a9bbd6ba1f"
+    },
+    {
+      "bytes": 901,
+      "logical_path": "geometry-diagnostics/H-roberta-L12/metadata.json",
+      "remote_path": "objects/sha256/30/305fe0de6b6d90f40a2921232b07d6aa1653e8c800f855ec467c44a9494c3b67/metadata.json",
+      "role": "validation_output",
+      "sha256": "305fe0de6b6d90f40a2921232b07d6aa1653e8c800f855ec467c44a9494c3b67"
+    },
+    {
+      "bytes": 13512,
+      "logical_path": "geometry-diagnostics/H-roberta-L12/scores.parquet",
+      "remote_path": "objects/sha256/dc/dc2afa0da454ac5d7e5585bb924fc58d91f15a1e457f06a43f6547e940f15d1a/scores.parquet",
+      "role": "validation_output",
+      "sha256": "dc2afa0da454ac5d7e5585bb924fc58d91f15a1e457f06a43f6547e940f15d1a"
+    },
+    {
+      "bytes": 3297,
+      "logical_path": "manifests/conditional-A-H-AH-run-index.json",
+      "remote_path": "objects/sha256/53/53a1a48ddfbb6b581530e33bc1252ca5600ba22b6768c0897eb880c0c3306afa/conditional-A-H-AH-run-index.json",
+      "role": "validation_output",
+      "sha256": "53a1a48ddfbb6b581530e33bc1252ca5600ba22b6768c0897eb880c0c3306afa"
+    },
+    {
+      "bytes": 8214,
+      "logical_path": "manifests/counterfactual-pilot-index-v2.json",
+      "remote_path": "objects/sha256/90/901c7668453b453df622fab0ecee1a2b368f14fc80205e079708656768b14993/counterfactual-pilot-index-v2.json",
+      "role": "validation_output",
+      "sha256": "901c7668453b453df622fab0ecee1a2b368f14fc80205e079708656768b14993"
+    },
+    {
+      "bytes": 5463,
+      "logical_path": "manifests/counterfactual-pilot-index.json",
+      "remote_path": "objects/sha256/1e/1e77b3bc6c32edf4874285c79e8082545875690c36b97d1beafa6da81f4a046e/counterfactual-pilot-index.json",
+      "role": "validation_output",
+      "sha256": "1e77b3bc6c32edf4874285c79e8082545875690c36b97d1beafa6da81f4a046e"
+    },
+    {
+      "bytes": 1117,
+      "logical_path": "manifests/crowd-H-L12-run-index.json",
+      "remote_path": "objects/sha256/8d/8d5d2e2e7f4a1d543144da846302b32590391f3f478c275af90aa05aad89fbc6/crowd-H-L12-run-index.json",
+      "role": "validation_output",
+      "sha256": "8d5d2e2e7f4a1d543144da846302b32590391f3f478c275af90aa05aad89fbc6"
+    },
+    {
+      "bytes": 725,
+      "logical_path": "manifests/embedding_index.json",
+      "remote_path": "objects/sha256/b5/b581f7c02bfa7fbed461069517049eec359c0e3a62b96454509a3dc616703cb6/embedding_index.json",
+      "role": "validation_output",
+      "sha256": "b581f7c02bfa7fbed461069517049eec359c0e3a62b96454509a3dc616703cb6"
+    },
+    {
+      "bytes": 932,
+      "logical_path": "manifests/matched-null-index.json",
+      "remote_path": "objects/sha256/ac/ac7ef87f92340ecdf589e827ce6f27ae9ec344960681ec2dc1b0cdfbf4369ddc/matched-null-index.json",
+      "role": "validation_output",
+      "sha256": "ac7ef87f92340ecdf589e827ce6f27ae9ec344960681ec2dc1b0cdfbf4369ddc"
+    },
+    {
+      "bytes": 1116937,
+      "logical_path": "matched-nulls/A-centroids-null1000/draws.parquet",
+      "remote_path": "objects/sha256/e4/e425720fa513e9cc93616fbb1f424fac73e23ed1c2c82f83ddc8159790d5dc11/draws.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "e425720fa513e9cc93616fbb1f424fac73e23ed1c2c82f83ddc8159790d5dc11"
+    },
+    {
+      "bytes": 26287,
+      "logical_path": "matched-nulls/A-centroids-null1000/fold_summaries.parquet",
+      "remote_path": "objects/sha256/80/8065ecda8a69f0381f4761784e35885173e529bfec81314b87be629b71c1bb0c/fold_summaries.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "8065ecda8a69f0381f4761784e35885173e529bfec81314b87be629b71c1bb0c"
+    },
+    {
+      "bytes": 3876,
+      "logical_path": "matched-nulls/A-centroids-null1000/metadata.json",
+      "remote_path": "objects/sha256/05/053618ddd1136bb7723128c649f93793836876e23f2ed065619d0f55ab2d9a12/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "053618ddd1136bb7723128c649f93793836876e23f2ed065619d0f55ab2d9a12"
+    },
+    {
+      "bytes": 1112721,
+      "logical_path": "matched-nulls/H-PCA21-centroids-null1000/draws.parquet",
+      "remote_path": "objects/sha256/59/5996e0d85ce80fec33cfbdaa36dee736fd62f60988d30c752de4879d2c6294a0/draws.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "5996e0d85ce80fec33cfbdaa36dee736fd62f60988d30c752de4879d2c6294a0"
+    },
+    {
+      "bytes": 26264,
+      "logical_path": "matched-nulls/H-PCA21-centroids-null1000/fold_summaries.parquet",
+      "remote_path": "objects/sha256/eb/eb40feb65fc1a72570b2f3afd44d665d4c51b3e949ecabff4d8c0e30f2300c43/fold_summaries.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "eb40feb65fc1a72570b2f3afd44d665d4c51b3e949ecabff4d8c0e30f2300c43"
+    },
+    {
+      "bytes": 3928,
+      "logical_path": "matched-nulls/H-PCA21-centroids-null1000/metadata.json",
+      "remote_path": "objects/sha256/69/694b13dc0decaa5d7369905f02c3f1532f9d46d1d54b901352b0da318b9d484b/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "694b13dc0decaa5d7369905f02c3f1532f9d46d1d54b901352b0da318b9d484b"
+    },
+    {
+      "bytes": 1083,
+      "logical_path": "observed-vs-counterfactual/A-centroids-pilot200/metadata.json",
+      "remote_path": "objects/sha256/4f/4fb7f3ade368f27b676d58f7d51feb26ebc6cd14e4c857d12b195569bdcc730f/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "4fb7f3ade368f27b676d58f7d51feb26ebc6cd14e4c857d12b195569bdcc730f"
+    },
+    {
+      "bytes": 16262,
+      "logical_path": "observed-vs-counterfactual/A-centroids-pilot200/scores.parquet",
+      "remote_path": "objects/sha256/a5/a572897b90df9dc2894a4aef95aa01d0111ff60d236c118c4db45cb7d262e572/scores.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "a572897b90df9dc2894a4aef95aa01d0111ff60d236c118c4db45cb7d262e572"
+    },
+    {
+      "bytes": 1074,
+      "logical_path": "observed-vs-counterfactual/H-PCA21-centroids-pilot200/metadata.json",
+      "remote_path": "objects/sha256/b1/b1be8b409ed812c9bdb8a03945a0274f65a3b14709e0b35778c94621b1d8d26c/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "b1be8b409ed812c9bdb8a03945a0274f65a3b14709e0b35778c94621b1d8d26c"
+    },
+    {
+      "bytes": 16262,
+      "logical_path": "observed-vs-counterfactual/H-PCA21-centroids-pilot200/scores.parquet",
+      "remote_path": "objects/sha256/a1/a1c63f3683286446809492f0b2e08166bd135a4f05e3e62a6f84f0f8ef35380b/scores.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "a1c63f3683286446809492f0b2e08166bd135a4f05e3e62a6f84f0f8ef35380b"
+    },
+    {
+      "bytes": 36059,
+      "logical_path": "results-conditional/A-appraisal-logloss/geometry.npz",
+      "remote_path": "objects/sha256/f9/f91429c86396f5de975e12a5ed44978dbdd4c434a749c7c0d5e65785d0d663c9/geometry.npz",
+      "role": "golden_experiment_output",
+      "sha256": "f91429c86396f5de975e12a5ed44978dbdd4c434a749c7c0d5e65785d0d663c9"
+    },
+    {
+      "bytes": 2672,
+      "logical_path": "results-conditional/A-appraisal-logloss/metadata.json",
+      "remote_path": "objects/sha256/7c/7c9840c8364d3412df3d45f1a0304fbf41f9ff4d821e8fc9a45bcdd4782407bc/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "7c9840c8364d3412df3d45f1a0304fbf41f9ff4d821e8fc9a45bcdd4782407bc"
+    },
+    {
+      "bytes": 855262,
+      "logical_path": "results-conditional/A-appraisal-logloss/oof.parquet",
+      "remote_path": "objects/sha256/b9/b9a58e8ae1de54ca1877689bb064d14750aa9d6d3a0dd04f2b46d10494f15972/oof.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "b9a58e8ae1de54ca1877689bb064d14750aa9d6d3a0dd04f2b46d10494f15972"
+    },
+    {
+      "bytes": 5451,
+      "logical_path": "results-conditional/A-appraisal-logloss/selections.parquet",
+      "remote_path": "objects/sha256/fa/fa30d23cf9d9efacb74eaf2a84bb66d36c7778a817ba3c709893cab2969e57ae/selections.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "fa30d23cf9d9efacb74eaf2a84bb66d36c7778a817ba3c709893cab2969e57ae"
+    },
+    {
+      "bytes": 1242179,
+      "logical_path": "results-conditional/AH-roberta-L12-logloss/geometry.npz",
+      "remote_path": "objects/sha256/0c/0ca476f5872537ba80cd04db9ba0a492b746b3865f3414a7eae462454ef1b4ef/geometry.npz",
+      "role": "golden_experiment_output",
+      "sha256": "0ca476f5872537ba80cd04db9ba0a492b746b3865f3414a7eae462454ef1b4ef"
+    },
+    {
+      "bytes": 3005,
+      "logical_path": "results-conditional/AH-roberta-L12-logloss/metadata.json",
+      "remote_path": "objects/sha256/a0/a041d65960e7f552ee4bf05c6387822c2ba443e4d0950d8f7de294c54e4d4a1b/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "a041d65960e7f552ee4bf05c6387822c2ba443e4d0950d8f7de294c54e4d4a1b"
+    },
+    {
+      "bytes": 855646,
+      "logical_path": "results-conditional/AH-roberta-L12-logloss/oof.parquet",
+      "remote_path": "objects/sha256/43/43f1954c8fa13a2d1d3584a09d79a1cf295cd4a1adfe0756a42e6b4befe2cb2e/oof.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "43f1954c8fa13a2d1d3584a09d79a1cf295cd4a1adfe0756a42e6b4befe2cb2e"
+    },
+    {
+      "bytes": 5467,
+      "logical_path": "results-conditional/AH-roberta-L12-logloss/selections.parquet",
+      "remote_path": "objects/sha256/0e/0eb9795dcee94acf2098b0eaa8d1c0d9505374551cddbd5868a374f27598c10a/selections.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "0eb9795dcee94acf2098b0eaa8d1c0d9505374551cddbd5868a374f27598c10a"
+    },
+    {
+      "bytes": 1209006,
+      "logical_path": "results-conditional/H-roberta-L12-logloss/geometry.npz",
+      "remote_path": "objects/sha256/cc/ccff9898bae03a1f52091cef69d5a8539ceca5e5279c02210b0544ac77243317/geometry.npz",
+      "role": "golden_experiment_output",
+      "sha256": "ccff9898bae03a1f52091cef69d5a8539ceca5e5279c02210b0544ac77243317"
+    },
+    {
+      "bytes": 2959,
+      "logical_path": "results-conditional/H-roberta-L12-logloss/metadata.json",
+      "remote_path": "objects/sha256/17/171cec775c9e07197f7db3f9523767383810da7cbc27bfb4a9548d8d1cc9c4f3/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "171cec775c9e07197f7db3f9523767383810da7cbc27bfb4a9548d8d1cc9c4f3"
+    },
+    {
+      "bytes": 855767,
+      "logical_path": "results-conditional/H-roberta-L12-logloss/oof.parquet",
+      "remote_path": "objects/sha256/50/500866257b0812f9868c9b90877f201e0e7a586344eb9c5ffbbbb8edbdd82e92/oof.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "500866257b0812f9868c9b90877f201e0e7a586344eb9c5ffbbbb8edbdd82e92"
+    },
+    {
+      "bytes": 5451,
+      "logical_path": "results-conditional/H-roberta-L12-logloss/selections.parquet",
+      "remote_path": "objects/sha256/49/49fbc50e62ce6c945806789123b17cd9f554582beaf96407699a5a173044811a/selections.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "49fbc50e62ce6c945806789123b17cd9f554582beaf96407699a5a173044811a"
+    },
+    {
+      "bytes": 2053,
+      "logical_path": "results/H-roberta-L12-mean-logloss/metadata.json",
+      "remote_path": "objects/sha256/ed/edf8df3fc6fc4d717f14735029875a03b75c981faa69e59a4ff3e060080b845a/metadata.json",
+      "role": "golden_experiment_output",
+      "sha256": "edf8df3fc6fc4d717f14735029875a03b75c981faa69e59a4ff3e060080b845a"
+    },
+    {
+      "bytes": 855782,
+      "logical_path": "results/H-roberta-L12-mean-logloss/oof.parquet",
+      "remote_path": "objects/sha256/2e/2e0afb84f9802002ccc07c40788e6793e00d063274cf0b8a09d900b66b1fd118/oof.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "2e0afb84f9802002ccc07c40788e6793e00d063274cf0b8a09d900b66b1fd118"
+    },
+    {
+      "bytes": 4807,
+      "logical_path": "results/H-roberta-L12-mean-logloss/selections.parquet",
+      "remote_path": "objects/sha256/5e/5e1494f093f296f0ba2a4cded7c40e1f5f58226ff1f57e1c8d45d008689f9dbf/selections.parquet",
+      "role": "golden_experiment_output",
+      "sha256": "5e1494f093f296f0ba2a4cded7c40e1f5f58226ff1f57e1c8d45d008689f9dbf"
+    }
+  ],
+  "bucket_id": "GwendalTsang/frozen-emotion-spaces-replication",
+  "bucket_is_mutable_transport_not_archive": true,
+  "bucket_private": false,
+  "release_id": "replication-2026-08-16-r1",
+  "schema_version": 1,
+  "source_status": "new_replication_not_historical_recovery"
+}
