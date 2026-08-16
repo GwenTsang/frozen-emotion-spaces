@@ -1,6 +1,5 @@
 # Reproduction ciblée — appraisal, représentation gelée et gain conditionnel
 
-Date d'exécution : 16 août 2026
 Statut : **nouvelle réplication propre, pas récupération du run historique**
 Corpus : crowd-enVENT, 6 600 textes de génération, 13 labels `y_writer`
 Splits : 5 plis externes × 3 plis internes, groupes auteur + duplicats disjoints

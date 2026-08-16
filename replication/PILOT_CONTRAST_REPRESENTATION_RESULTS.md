@@ -1,6 +1,5 @@
 # Pilot contrefactuel — Contrast, Representation et apprenabilité
 
-Date d'exécution : 16 août 2026
 Statut : **nouveau pilote exploratoire ; ni résultat historique récupéré, ni test confirmatoire**
 
 ## Question testée

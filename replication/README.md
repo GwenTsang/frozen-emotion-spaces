@@ -1,4 +1,4 @@
-# Replication bundle — 2026-08-16
+# Replication bundle
 
 This directory contains a **new, provenance-bound replication**, not recovered
 historical output. It was produced by the clean-room code under `../src/` from

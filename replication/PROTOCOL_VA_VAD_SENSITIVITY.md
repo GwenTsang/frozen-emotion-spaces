@@ -1,7 +1,6 @@
 # VA/VAD as an interpretable anchor space
 
 Status: **prospective protocol; no result yet**
-Date: 2026-08-16
 Primary corpus: EmoTwiCS customer tweets
 Primary geometry: `VA-2D`
 Sensitivity geometry: `VAD-3D`

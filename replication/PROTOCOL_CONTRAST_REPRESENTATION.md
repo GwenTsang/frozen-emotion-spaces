@@ -1,7 +1,6 @@
 # Contrast, Representation, and representation-dependent learnability
 
 Status: **prospective protocol with completed exploratory pilots; confirmatory phase not yet run**
-Date locked: 2026-08-16
 Primary dataset: crowd-enVENT generation set (6,600 items)
 Primary target for the observed-category analysis: `y_writer` (13 prompted labels)
 
@@ -202,7 +201,7 @@ similarity, that the emotions are rationalized by a unique geometry, or that
 the prompted labels are natural kinds. Those stronger claims require
 independent behavioral similarity, typicality, and generalization data.
 
-## 9. Pilot audit amendment — 2026-08-16
+## 9. Pilot audit amendment
 
 The first completed pilot (`per_cell_capped_items`) followed the source color
 study's itemwise per-cell sampling more closely, with a cap of 25 items per

@@ -1,7 +1,7 @@
 # Frozen Emotion Spaces replication artifacts
 
 This public Bucket stores content-addressed numerical artifacts for release
-`replication-2026-08-16-r1`. It is not a versioned or immutable archive.
+`replication-r1`. It is not a versioned or immutable archive.
 
 The authoritative logical-path, byte-size, and SHA-256 registry is the
 `artifacts/artifacts.lock.json` file committed with the corresponding source

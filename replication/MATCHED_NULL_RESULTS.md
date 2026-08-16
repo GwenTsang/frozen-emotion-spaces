@@ -1,6 +1,5 @@
 # Mechanism-matched nulls for the observed emotion centroids
 
-Date: 2026-08-16
 Status: **new descriptive replication; not a confirmatory H-CR4 test**
 
 ## Why the first comparison was insufficient
