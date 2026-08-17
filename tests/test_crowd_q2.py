@@ -194,6 +194,8 @@ def _synthetic_embedding_artifact(
     *,
     model_key: str = "roberta-base",
     seed: int = 123,
+    mean: np.ndarray | None = None,
+    first: np.ndarray | None = None,
 ) -> Path:
     """Write a validated synthetic embedding artifact (no encoder weights)."""
 
@@ -201,8 +203,15 @@ def _synthetic_embedding_artifact(
     rng = np.random.default_rng(seed)
     n_layers = spec.emitted_layers
     ids = np.asarray([str(i) for i in item_ids], dtype=np.str_)
-    mean = rng.standard_normal((n_layers, len(ids), spec.hidden_size)).astype(np.float32)
-    first = rng.standard_normal((n_layers, len(ids), spec.hidden_size)).astype(np.float32)
+    if mean is None:
+        mean = rng.standard_normal((n_layers, len(ids), spec.hidden_size)).astype(np.float32)
+    if first is None:
+        first = rng.standard_normal((n_layers, len(ids), spec.hidden_size)).astype(np.float32)
+    expected_shape = (n_layers, len(ids), spec.hidden_size)
+    if mean.shape != expected_shape or first.shape != expected_shape:
+        raise ValueError("provided arrays must have shape " f"{expected_shape}")
+    mean = np.ascontiguousarray(mean, dtype=np.float32)
+    first = np.ascontiguousarray(first, dtype=np.float32)
 
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
@@ -353,6 +362,76 @@ def _run_external(tmp: Path, problem: dict, **overrides):
     )
     kwargs.update(overrides)
     return run_q2_external_probe(tmp / "ext", **kwargs)
+
+
+def _label_encoding_arrays(
+    ids: list[str],
+    targets_by_id: dict[str, str],
+    class_names: tuple[str, ...],
+) -> tuple[np.ndarray, np.ndarray]:
+    """Layer-0 rows encode the item's class as a near one-hot direction on an
+    otherwise constant (zero-variance) feature space, so per-column
+    standardization keeps only the four signal columns active.  Any probe
+    that selects artifact rows by item id reaches a near-perfect fit;
+    positional (misaligned) selection is punished by the shuffled extras.
+    """
+
+    spec = get_model_spec("roberta-base")
+    shape = (spec.emitted_layers, len(ids), spec.hidden_size)
+    mean = np.zeros(shape, dtype=np.float32)
+    first = np.zeros(shape, dtype=np.float32)
+    class_index = {name: index for index, name in enumerate(class_names)}
+    for row, item in enumerate(ids):
+        target = targets_by_id.get(item)
+        if target is not None:
+            mean[0, row, class_index[target]] = 25.0
+            first[0, row, class_index[target]] = 25.0
+    return mean, first
+
+
+def _assert_true_class_probs(frame: pd.DataFrame, targets_by_id: dict[str, str]) -> None:
+    records = frame.to_dict("records")
+    assert records
+    for item, row in zip(frame["item_id"].astype(str), records, strict=True):
+        assert row[f"prob__{targets_by_id[item]}"] > 0.9
+
+
+def test_external_probe_aligns_superset_artifact_by_item_id(tmp_path: Path) -> None:
+    """A full-corpus artifact (extra items, shuffled order) is selected by id."""
+    problem = _external_problem()
+    wanted = problem["train_ids"] + problem["test_ids"]
+    targets_by_id = dict(
+        zip(wanted, problem["train_targets"] + problem["test_targets"], strict=True)
+    )
+    ids = wanted[:4] + [f"extra-{i}" for i in range(4)] + wanted[4:]
+    mean, first = _label_encoding_arrays(ids, targets_by_id, problem["class_names"])
+    embedding = _synthetic_embedding_artifact(
+        tmp_path / "emb-superset", ids, mean=mean, first=first
+    )
+    result = _run_external(
+        tmp_path,
+        problem,
+        representation="H",
+        embedding_directory=embedding,
+        layer=0,
+        pooling="mean",
+    )
+    _assert_true_class_probs(result.test_predictions, targets_by_id)
+    validate_q2_external_probe(result.directory)
+
+
+def test_triplet_aligns_subset_artifact_by_item_id(tmp_path: Path) -> None:
+    """A superset artifact serves a probe over any item subset, by id."""
+    problem = _synthetic_crowd_problem()
+    wanted = problem["item_ids"]
+    targets_by_id = dict(zip(wanted, problem["targets"], strict=True))
+    ids = wanted[:2] + [f"extra-{i}" for i in range(3)] + wanted[2:]
+    mean, first = _label_encoding_arrays(ids, targets_by_id, problem["class_names"])
+    embedding = _synthetic_embedding_artifact(
+        tmp_path / "emb-superset", ids, mean=mean, first=first
+    )
+    artifact = _run_H(tmp_path, problem, embedding, layer=0)
+    _assert_true_class_probs(artifact.oof, targets_by_id)
 
 
 # ---------------------------------------------------------------------------

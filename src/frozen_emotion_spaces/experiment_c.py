@@ -114,7 +114,14 @@ def run_crowd_representation_probe(
             if isinstance(embedding_directory, EmbeddingArtifact)
             else embedding_directory
         )
-        embedding = validate_embedding_artifact(artifact_path, expected_item_ids=ids)
+        embedding = validate_embedding_artifact(artifact_path)
+        positions = {item_id: index for index, item_id in enumerate(embedding.item_ids)}
+        missing = [item_id for item_id in ids if item_id not in positions]
+        if missing:
+            raise ValueError(
+                f"embedding artifact is missing {len(missing)} requested items"
+            )
+        row_index = np.array([positions[item_id] for item_id in ids])
         if not isinstance(layer, int) or not 0 <= layer < int(
             embedding.metadata["n_layers"]
         ):
@@ -124,13 +131,14 @@ def run_crowd_representation_probe(
             mmap_mode="r",
             allow_pickle=False,
         )
-        hidden = np.asarray(pooled[layer], dtype=np.float64)
-        embedding_layer_sha256 = _sha256_array(hidden.astype(np.float32))
+        hidden_full = np.asarray(pooled[layer], dtype=np.float64)
+        embedding_layer_sha256 = _sha256_array(hidden_full.astype(np.float32))
         expected = embedding.metadata["files"][f"{pooling}.npy"]["layer_sha256"][
             layer
         ]
         if embedding_layer_sha256 != expected:
             raise ValueError("loaded hidden layer disagrees with embedding metadata")
+        hidden = np.ascontiguousarray(hidden_full[row_index])
     elif embedding_directory is not None or layer is not None:
         raise ValueError("A-only runs must not declare an embedding or layer")
 

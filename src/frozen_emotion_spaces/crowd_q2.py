@@ -879,9 +879,15 @@ def run_q2_external_probe(
             else embedding_directory
         )
         all_ids = np.concatenate([train_ids, test_ids])
-        embedding = validate_embedding_artifact(
-            artifact_path, expected_item_ids=all_ids
-        )
+        embedding = validate_embedding_artifact(artifact_path)
+        positions = {
+            item_id: index for index, item_id in enumerate(embedding.item_ids)
+        }
+        missing = [item_id for item_id in all_ids if item_id not in positions]
+        if missing:
+            raise ValueError(
+                f"embedding artifact is missing {len(missing)} requested items"
+            )
         if not isinstance(layer, int) or not 0 <= layer < int(
             embedding.metadata["n_layers"]
         ):
@@ -896,9 +902,12 @@ def run_q2_external_probe(
         expected_hash = embedding.metadata["files"][f"{pooling}.npy"]["layer_sha256"][layer]
         if embedding_layer_sha256 != expected_hash:
             raise ValueError("loaded hidden layer disagrees with embedding metadata")
-        position = {item_id: index for index, item_id in enumerate(embedding.item_ids)}
-        hidden_train = hidden_all[[position[i] for i in train_ids]]
-        hidden_test = hidden_all[[position[i] for i in test_ids]]
+        hidden_train = np.ascontiguousarray(
+            hidden_all[[positions[i] for i in train_ids]]
+        )
+        hidden_test = np.ascontiguousarray(
+            hidden_all[[positions[i] for i in test_ids]]
+        )
     elif embedding_directory is not None or layer is not None:
         raise ValueError("A-only runs must not declare an embedding or layer")
 
