@@ -19,8 +19,13 @@ from .config import (
 from .crowd_data import APPRAISAL_NAMES, build_crowd_manifests
 from .embedding_index import write_embedding_index
 from .embeddings import extract_to_artifact, load_embedding_layer
-from .emotwics_data import build_emotwics_manifest
+from .emotwics_data import CLUSTER_COLUMNS, EMOTION_CLUSTERS, build_emotwics_manifest
 from .experiment_a import run_crowd_layer_probe
+from .experiment_b import (
+    build_all_layer_summary,
+    run_emotwics_layer_probe,
+    validate_emotwics_layer_probe,
+)
 from .experiment_c import (
     run_crowd_representation_probe,
     validate_crowd_representation_probe,
@@ -32,9 +37,11 @@ from .counterfactual_observed import write_observed_counterfactual_analysis
 from .counterfactual_nulls import run_observed_matched_nulls
 from .category_rank import write_category_rank_analysis
 from .conditional_analysis import write_conditional_analysis
+from .decoder_ladder import run_decoder_ladder
 from .observed_geometry import write_observed_geometry_analysis
-from .probes import DEFAULT_BLOCK_MULTIPLIER_GRID, DEFAULT_C_GRID
+from .probes import DEFAULT_BLOCK_MULTIPLIER_GRID, DEFAULT_C_GRID, DEFAULT_THRESHOLD_GRID
 from .representation_index import write_representation_run_index
+from .run_index import write_crowd_run_index
 from .splits import read_split_bundle
 
 
@@ -265,6 +272,64 @@ def build_parser() -> argparse.ArgumentParser:
     observed_geometry.add_argument("--embedding-directory", type=Path)
     observed_geometry.add_argument("--output", type=Path, required=True)
     observed_geometry.set_defaults(handler=_analyze_observed_geometry)
+
+    ladder = commands.add_parser(
+        "run-decoder-ladder",
+        help="run the D0-D4 geometric decoder ladder and multi-prototype diagnostics",
+    )
+    ladder.add_argument("--archive", type=Path, required=True)
+    ladder.add_argument("--splits", type=Path, required=True)
+    ladder.add_argument("--space", choices=("A", "H"), required=True)
+    ladder.add_argument("--embedding-directory", type=Path)
+    ladder.add_argument("--layer", type=int, default=12)
+    ladder.add_argument("--pooling", default="mean")
+    ladder.add_argument("--pca-dim", type=int)
+    ladder.add_argument("--output", type=Path, required=True)
+    ladder.set_defaults(handler=_run_decoder_ladder)
+
+    emotwics_layer = commands.add_parser(
+        "probe-emotwics-layer",
+        help="run one nested full-OOF EmoTwiCS multilabel layer probe",
+    )
+    emotwics_layer.add_argument("--archive", type=Path, required=True)
+    emotwics_layer.add_argument("--splits", type=Path, required=True)
+    emotwics_layer.add_argument("--embedding-directory", type=Path, required=True)
+    emotwics_layer.add_argument("--output", type=Path, required=True)
+    emotwics_layer.add_argument("--layer", type=int, required=True)
+    emotwics_layer.add_argument("--pooling", choices=("mean", "first"), default="mean")
+    emotwics_layer.add_argument(
+        "--selection-metric",
+        choices=("log_loss", "macro_f1"),
+        required=True,
+    )
+    emotwics_layer.add_argument(
+        "--C-grid",
+        type=_parse_C_grid,
+        default=DEFAULT_C_GRID,
+        metavar="C1,C2,...",
+    )
+    emotwics_layer.add_argument(
+        "--threshold-grid",
+        type=_parse_positive_grid,
+        default=DEFAULT_THRESHOLD_GRID,
+        metavar="T1,T2,...",
+    )
+    emotwics_layer.set_defaults(handler=_probe_emotwics_layer)
+
+    emotwics_summary = commands.add_parser(
+        "summarize-emotwics-layers",
+        help="build machine-readable macro-F1/macro-AP layer trajectory summary",
+    )
+    emotwics_summary.add_argument(
+        "--run",
+        action="append",
+        required=True,
+        type=Path,
+        metavar="PATH",
+        help="completed EmoTwiCS layer probe directory (repeatable)",
+    )
+    emotwics_summary.add_argument("--output", type=Path, required=True)
+    emotwics_summary.set_defaults(handler=_summarize_emotwics_layers)
 
     return parser
 
@@ -667,6 +732,83 @@ def _analyze_observed_geometry(arguments: argparse.Namespace) -> None:
                 "directory": str(analysis.directory),
                 "format": analysis.metadata["analysis_format"],
             },
+            sort_keys=True,
+        )
+    )
+
+
+def _run_decoder_ladder(arguments: argparse.Namespace) -> None:
+    crowd = build_crowd_manifests(arguments.archive)
+    splits = read_split_bundle(arguments.splits)
+    generation = crowd.generation
+    item_ids = generation["item_id"].astype(str).tolist()
+    y = generation["y_writer"].astype(str).tolist()
+    outer = splits.crowd_full_outer
+    group_lookup = dict(
+        zip(
+            outer["item_id"].astype(str),
+            outer["group_id"].astype(str),
+        )
+    )
+    group_ids = [group_lookup[i] for i in item_ids]
+    if arguments.space == "A":
+        features = generation[list(APPRAISAL_NAMES)].to_numpy(dtype=float)
+    else:
+        if arguments.embedding_directory is None:
+            raise ValueError("the H ladder requires --embedding-directory")
+        hidden, _ = load_embedding_layer(
+            arguments.embedding_directory,
+            layer=arguments.layer,
+            pooling=arguments.pooling,
+            expected_item_ids=item_ids,
+        )
+        features = np.asarray(hidden, dtype=np.float64)
+    artifact = run_decoder_ladder(
+        arguments.output,
+        space=arguments.space,
+        features=features,
+        item_ids=item_ids,
+        y=y,
+        group_ids=group_ids,
+        outer_folds=outer,
+        inner_folds=splits.crowd_full_inner,
+        pca_dim=arguments.pca_dim,
+    )
+    _print_artifact(artifact.directory, artifact.metadata)
+
+
+def _probe_emotwics_layer(arguments: argparse.Namespace) -> None:
+    manifest = build_emotwics_manifest(arguments.archive)
+    splits = read_split_bundle(arguments.splits)
+    tweets = manifest.tweets
+    item_ids = tweets["item_id"].astype(str).tolist()
+    label_names = list(EMOTION_CLUSTERS)
+    y = tweets[list(CLUSTER_COLUMNS)].to_numpy(dtype=np.int64)
+    run = run_emotwics_layer_probe(
+        arguments.output,
+        embedding_directory=arguments.embedding_directory,
+        layer=arguments.layer,
+        pooling=arguments.pooling,
+        y=y,
+        item_ids=item_ids,
+        label_names=label_names,
+        outer_folds=splits.emotwics_outer,
+        inner_folds=splits.emotwics_inner,
+        C_grid=arguments.C_grid,
+        threshold_grid=arguments.threshold_grid,
+        selection_metric=arguments.selection_metric,
+    )
+    _print_artifact(run.directory, run.metadata)
+
+
+def _summarize_emotwics_layers(arguments: argparse.Namespace) -> None:
+    artifacts = [validate_emotwics_layer_probe(path) for path in arguments.run]
+    summary = build_all_layer_summary(artifacts)
+    arguments.output.parent.mkdir(parents=True, exist_ok=True)
+    summary.layers.to_csv(arguments.output, index=False, lineterminator="\n")
+    print(
+        json.dumps(
+            {"output": str(arguments.output), "layers": len(summary.layers)},
             sort_keys=True,
         )
     )

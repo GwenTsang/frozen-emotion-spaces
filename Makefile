@@ -23,7 +23,7 @@ OBSERVED := $(WORK)/observed-vs-counterfactual
 NULLS := $(WORK)/matched-nulls
 MANIFESTS := $(WORK)/manifests
 
-.PHONY: help setup test verify-inputs extract primary conditional category-rank geometry pilots observed nulls replicate fetch-golden verify-golden
+.PHONY: help setup test verify-inputs extract primary conditional category-rank geometry ladder pilots observed nulls replicate fetch-golden verify-golden
 help:
 	@echo "Frozen Emotion Spaces replication targets"
 	@echo "  setup          install Python 3.12.11 and the locked environment"
@@ -34,6 +34,7 @@ help:
 	@echo "  conditional    run A, H, AH and their paired grouped-bootstrap analysis"
 	@echo "  category-rank  bootstrap category rank stability + A-vs-H rank association"
 	@echo "  geometry       score observed category sites in A and H"
+	@echo "  ladder         run the D0-D4 decoder ladder and multi-prototype diagnostics"
 	@echo "  observed       compare observed sites with counterfactual pilot distributions"
 	@echo "  nulls          run the two 1,000-draw mechanism-matched null analyses"
 	@echo "  replicate      execute every completed experiment in dependency order"
@@ -101,6 +102,22 @@ $(GEOMETRY)/H-roberta-L12/metadata.json: $(CONDITIONAL)/H-roberta-L12-logloss/me
 	$(FES) analyze-observed-geometry --archive $(CROWD_ARCHIVE) --splits $(SPLITS) --source-run $(CONDITIONAL)/H-roberta-L12-logloss --embedding-directory $(EMBEDDING_DIR) --output $(@D)
 
 geometry: $(GEOMETRY)/A-appraisal/metadata.json $(GEOMETRY)/H-roberta-L12/metadata.json
+
+LADDER := $(WORK)/decoder-ladder
+
+$(LADDER)/A/metadata.json: $(CROWD_ARCHIVE)
+	$(FES) run-decoder-ladder --archive $(CROWD_ARCHIVE) --splits $(SPLITS) --space A --output $(LADDER)/A
+
+$(LADDER)/H-PCA64/metadata.json: $(EMBEDDING_DIR)/metadata.json
+	$(FES) run-decoder-ladder --archive $(CROWD_ARCHIVE) --splits $(SPLITS) --space H --embedding-directory $(EMBEDDING_DIR) --layer 12 --pooling mean --pca-dim 64 --output $(LADDER)/H-PCA64
+
+$(LADDER)/bootstrap-all.json: $(LADDER)/A/metadata.json $(LADDER)/H-PCA64/metadata.json
+	UV_PROJECT_ENVIRONMENT=$(UV_ENV) uv run python scripts/analyze_ladder.py --ladder $(LADDER)/A --ladder $(LADDER)/H-PCA64 --splits $(SPLITS) --output $@
+
+$(LADDER)/site-diagnostics-A.json: $(LADDER)/A/metadata.json
+	UV_PROJECT_ENVIRONMENT=$(UV_ENV) uv run python scripts/plot_multiprot_sites.py --archive $(CROWD_ARCHIVE) --splits $(SPLITS) --ladder $(LADDER)/A --fold 0 --figure latex_paper/results/figures/multiprot_sites.pdf --diagnostics $@
+
+ladder: $(LADDER)/bootstrap-all.json $(LADDER)/site-diagnostics-A.json
 
 $(PILOTS)/A-standardized-pilot200/metadata.json: $(CONDITIONAL)/A-appraisal-logloss/metadata.json
 	$(FES) pilot-contrast-representation --archive $(CROWD_ARCHIVE) --splits $(SPLITS) --source-run $(CONDITIONAL)/A-appraisal-logloss --space A_STANDARDIZED --n-sites 13 --n-constellations-per-fold 200 --n-repetitions 10 --sampling-scheme per_cell_capped_items --max-samples-per-cell 25 --seed 20240804 --output $(@D)

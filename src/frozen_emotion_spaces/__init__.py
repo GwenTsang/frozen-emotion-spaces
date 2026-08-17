@@ -63,6 +63,14 @@ from .experiment_a import (
     run_crowd_layer_probe,
     validate_crowd_layer_probe,
 )
+from .experiment_b import (
+    EmoTwiCSAllLayerSummary,
+    EmoTwiCSLayerProbeArtifact,
+    build_all_layer_summary,
+    resumable_run_emotwics_layer_probe,
+    run_emotwics_layer_probe,
+    validate_emotwics_layer_probe,
+)
 from .experiment_c import (
     CrowdRepresentationProbeArtifact,
     run_crowd_representation_probe,
@@ -182,6 +190,24 @@ from .counterfactual_observed import (
     validate_observed_counterfactual_analysis,
     write_observed_counterfactual_analysis,
 )
+from .crowd_q2 import (
+    EXTERNAL_FORMAT,
+    PCA_DIMENSIONS,
+    SUITE_FORMAT,
+    ExternalRolePartition,
+    ExternalTestResult,
+    Q2SuiteArtifact,
+    build_q2_suite,
+    external_role_partition,
+    run_q2_batch,
+    run_q2_external_probe,
+    run_q2_reader_probe,
+    run_q2_representation_triplet,
+    summarize_q2_suite,
+    validate_q2_external_probe,
+    validate_q2_suite,
+)
+
 
 __all__ = [
     "APPRAISAL_NAMES",
@@ -205,6 +231,8 @@ __all__ = [
     "EMBEDDING_DTYPE",
     "EMOTION_CLUSTERS",
     "EmbeddingArtifact",
+    "EmoTwiCSAllLayerSummary",
+    "EmoTwiCSLayerProbeArtifact",
     "EmoTwiCSManifest",
     "FrozenEncoder",
     "INDEX_FIELDS",
@@ -304,6 +332,10 @@ __all__ = [
     "run_nested_multilabel_oof",
     "run_nested_multiclass_oof",
     "run_crowd_layer_probe",
+    "build_all_layer_summary",
+    "resumable_run_emotwics_layer_probe",
+    "run_emotwics_layer_probe",
+    "validate_emotwics_layer_probe",
     "select_multiclass_C",
     "select_multiclass_C_block_multiplier",
     "run_crowd_representation_probe",
@@ -325,4 +357,19 @@ __all__ = [
     "write_crowd_run_index",
     "write_counterfactual_index",
     "write_representation_run_index",
+    "EXTERNAL_FORMAT",
+    "PCA_DIMENSIONS",
+    "Q2SuiteArtifact",
+    "SUITE_FORMAT",
+    "ExternalRolePartition",
+    "ExternalTestResult",
+    "build_q2_suite",
+    "external_role_partition",
+    "run_q2_batch",
+    "run_q2_external_probe",
+    "run_q2_reader_probe",
+    "run_q2_representation_triplet",
+    "summarize_q2_suite",
+    "validate_q2_external_probe",
+    "validate_q2_suite",
 ]
