@@ -1,0 +1,11 @@
+% stub siunitx - unused in paper_clean.tex
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{siunitx}[2024/01/01 stub]
+\DeclareOption*{\relax}
+\ProcessOptions\relax
+% provide dummy commands if ever used
+\newcommand{\SI}[2]{#1\,#2}
+\newcommand{\si}[1]{#1}
+\newcommand{\num}[1]{#1}
+\newcommand{\qty}[2]{#1\,#2}
+\newcommand{\sisetup}[1]{}

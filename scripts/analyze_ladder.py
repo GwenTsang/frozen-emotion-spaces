@@ -21,6 +21,8 @@ from frozen_emotion_spaces.metrics import (
 )
 
 CONTRASTS = (
+    ("D1o", "D1"),
+    ("D1o", "D3"),
     ("D4", "D3"),
     ("D4", "D1"),
     ("D4c", "D4"),

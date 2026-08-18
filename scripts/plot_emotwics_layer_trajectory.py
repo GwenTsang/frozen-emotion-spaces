@@ -117,7 +117,11 @@ def render(
         )
     ax.set_xlabel("layer")
     ax.set_ylabel("score")
-    ax.set_ylim(0.0, 1.0)
+    series_values = pd.concat([frame["macro_f1"], frame["macro_ap"]])
+    lower = min(series_values.min(), reference_value or 1.0)
+    upper = max(series_values.max(), reference_value or 0.0)
+    margin = max(0.02, 0.12 * (upper - lower))
+    ax.set_ylim(max(0.0, lower - margin), min(1.0, upper + margin))
     ax.set_xticks(layers)
     ax.grid(color="0.9", linewidth=0.8)
     ax.set_axisbelow(True)
@@ -132,14 +136,7 @@ def render(
         title
         or f"EmoTwiCS layerwise probes ({model}, inner selection: {metric})"
     )
-    fig.text(
-        0.01,
-        0.01,
-        "clean-room reconstruction; values read from the validated run aggregate",
-        fontsize=7,
-        color="0.45",
-    )
-    fig.tight_layout(rect=(0.0, 0.03, 1.0, 1.0))
+    fig.tight_layout()
 
     destination = Path(output)
     destination.parent.mkdir(parents=True, exist_ok=True)

@@ -127,7 +127,7 @@ def _cmd_external(args: argparse.Namespace) -> None:
     for model_key in args.models:
         emb_dir = _embeddings(args.cache_root, model_key)
         for layer in args.layers:
-            for rep, dims in (("A", args.pca_dimensions), ("H", [None]), ("AH", [None])):
+            for rep, dims in (("A", [None, *args.pca_dimensions]), ("H", [None]), ("AH", [None])):
                 for d in dims:
                     suffix = rep if d is None else f"{rep}-pca{d}"
                     run_q2_external_probe(
@@ -168,7 +168,7 @@ def _cmd_reader(args: argparse.Namespace) -> None:
     for model_key in args.models:
         emb_dir = _embeddings(args.cache_root, model_key)
         for layer in args.layers:
-            for rep, dims in (("A", args.pca_dimensions), ("H", [None]), ("AH", [None])):
+            for rep, dims in (("A", [None, *args.pca_dimensions]), ("H", [None]), ("AH", [None])):
                 for d in dims:
                     suffix = rep if d is None else f"{rep}-pca{d}"
                     run_q2_reader_probe(

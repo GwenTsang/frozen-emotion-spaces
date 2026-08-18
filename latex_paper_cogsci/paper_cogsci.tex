@@ -1,0 +1,270 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\IfFileExists{siunitx.sty}{\usepackage{siunitx}}{}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[round,authoryear]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black}
+
+\newcommand{\AtoY}{$A\!\rightarrow\!Y$}
+\newcommand{\HtoY}{$H\!\rightarrow\!Y$}
+\newcommand{\AHtoY}{$[A;H]\!\rightarrow\!Y$}
+
+\title{Do Emotion Categories Exhibit Conceptual-Space Properties?\\[6pt]{\large Pilot Evidence from Decoder Geometry and a Research Programme}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Do emotion categories, as recovered by linear decoders from appraisal ratings and frozen Transformer representations, exhibit the geometric and learnability properties predicted by conceptual-space accounts of natural concepts? A companion paper establishes the decoder-side facts: a linear probe is equivalent to a power diagram (convex tessellation), and a geometric decoder ladder (D1--D4) shows that single-prototype power diagrams provide parsimonious decoding of 13 crowd-enVENT emotion categories in both appraisal and hidden-state spaces. Decoder geometry alone, however, does not establish psychological geometry. This paper presents pilot Contrast/Representation evidence from an exploratory counterfactual-partition study on crowd-enVENT and outlines the additional empirical steps---confirmatory Contrast/Representation testing, independent psychological validation of the similarity metric, and human concept-learning experiments---required for a genuine conceptual-space test.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+This paper and its companion adopt a deliberate two-paper strategy.
+
+The companion paper (the NLP contribution) establishes what can be said from decoder geometry alone. It shows algebraically that a multiclass linear probe is equivalent to a power diagram, introduces a decoder ladder (D1~nearest centroid, D1o~centroid-offset diagram with free per-class offsets $\omega_k$, D2~learned ordinary Voronoi with a single site per class and tied offsets, D3~power diagram with a single site per class and free $\omega_k$---equivalent to unconstrained logistic regression, D4~unsupervised multi-prototype via $k$-means, D4d~discriminative multi-prototype), and evaluates that ladder under strict leakage control on crowd-enVENT (13 writer-prompted emotion categories, 21-dimensional appraisals) and EmoTwiCS. The central decoder-side finding is that a single-prototype power diagram (D2/D3) is a strong parsimonious baseline for held-out description length, while discriminatively fit multi-prototype diagrams can match or beat it---the apparent multi-prototype degradation under $k$-means reflects the unsupervised estimator, not multi-prototype geometry per se.
+
+The present paper asks whether those geometric partitions have cognitive significance. Central question:
+
+\begin{center}
+\emph{Do emotion categories exhibit the geometric and learnability properties\\ predicted by conceptual-space accounts of natural concepts?}
+\end{center}
+
+Following recent discussion, we structure the answer around four falsifiable hypotheses:
+
+\begin{itemize}
+\item[\emph{H1.}] \emph{Metric:} The chosen metric (e.g., Euclidean in standardized appraisal or PC-projected hidden-state space) corresponds to psychological similarities, as measured by pairwise similarity, sorting, triplet, and typicality judgments.
+\item[\emph{H2.}] \emph{Prototype--site mapping:} Learned sites/centroids relate to cognitive prototypes (typicality gradients, central tendency).
+\item[\emph{H3.}] \emph{Convexity and learnability:} Convexity, or more generally the connectedness and structural coherence of cells, predicts human learning (trials to criterion, accuracy, generalization, retention).
+\item[\emph{H4.}] \emph{Contrast and Representation predict naturalness:} The design-optimality criteria \emph{Contrast} and \emph{Representation} \citep{douven-gardenfors-2020} predict the held-out learnability and naturalness of categories.
+\end{itemize}
+
+The companion paper's results are \emph{necessary but not sufficient} for H1--H4. They fix the decoder geometry and show what parsimony looks like; they do not validate the metric, the prototype interpretation, or the learnability claim. This paper reports the available pilot evidence for H4, shows why it remains exploratory, and lays out a research programme that would put H1--H4 to a genuine test.
+
+We proceed as follows. \S\ref{sec:framework} develops the conceptual-space framework and why the bridge from decoder geometry to psychological geometry requires independent empirical constraints. \S\ref{sec:prerequisite} summarizes the prerequisite decoder findings from the companion paper. \S\ref{sec:contrast} presents the pilot Contrast/Representation study verbatim. \S\ref{sec:extensions} sketches the required confirmatory and behavioural extensions. \S\ref{sec:discussion} and \S\ref{sec:conclusion} discuss limitations and conclude.
+
+\section{Theoretical framework: conceptual spaces and design criteria}
+\label{sec:framework}
+
+\emph{Conceptual spaces.} \citet{gardenfors2000conceptual} proposes that natural concepts correspond to convex regions of a psychological similarity space equipped with interpretable quality dimensions and a metric. Convexity is the core geometric hypothesis: if two points belong to the same concept, every point between them (under the space's metric) should also belong to that concept. The proposal links geometry to cognition via \citet{shepard1987toward} and \citet{nosofsky1986attention}: similarity decays monotonically with distance, and categorization follows similarity to prototypes or exemplars. Voronoi tessellations generated by prototypes are the canonical geometric realization, and power diagrams \citep{aurenhammer1987power} generalize them with additive weights.
+
+What makes this framework attractive for emotion categories is its explicit connection between representation and learnability. Conceptual spaces are not merely a descriptive geometry; they are a design hypothesis about which partitions of a space a learner should find natural. \citet{douven-gardenfors-2020} formalize this as a \emph{design perspective}: natural concepts are those partitions that jointly optimize two competing criteria---\emph{Contrast} (categories should be well separated, sites far apart) and \emph{Representation} (sites should represent their cells well, close to cell centroids). The Voronoi structure is taken as the linking assumption: given sites, the partition \emph{is} the nearest-site tessellation.
+
+\emph{Douven's programme and independent evidence.} \citet{douven-2023-naturalness} and \citet{douven-verheyen-2026} develop this perspective computationally and experimentally. Using the source implementation accompanying \citet{douven-code-2023}, \citet{douven-2023-naturalness} studies computationally which partitions are design-optimal and how Contrast and Representation trade off under realistic domain geometries. The key lesson is that Contrast and Representation are typically \emph{positively correlated} across random partitions (well-separated sites also tend to be far from their cell centroids), so they impose a genuine trade-off rather than a single scalar. Joint optimization therefore identifies a Pareto frontier, not a unique optimum.
+
+\citet{douven-verheyen-2026}, forthcoming in \emph{Erkenntnis}, provides independent computational evidence on a related structural question: whether convex versus merely connected partitions differentially predict learnability and generalization. Their results ground the intuition behind H3 while cautioning that convexity alone is not the only relevant structural property---connectedness and graded centrality also matter. For emotion, where category boundaries are plausibly fuzzy and appraisal dimensions are correlated, the relevant test is therefore not ``is the decoder convex?'' (every linear probe is, by construction) but ``does the \emph{degree} of design optimality of a Voronoi partition predict how easily that partition is learned, whether by a simple machine learner or by a human participant?''
+
+\emph{Why decoder geometry is not enough.} A linear probe's equivalence to a power diagram \citep{aurenhammer1987power} is a mathematical fact about the classifier family, not an empirical discovery about emotion psychology. It says: whatever partition the probe learns, that partition can be rewritten as a convex tessellation with sites and weights. Without further constraints, any linearly separable labeling admits such a rewriting. The bridge to conceptual spaces therefore requires three independent empirical links, corresponding to H1--H3: (i)~the metric in which decoder distance is measured must be shown to track psychological similarity (pairwise ratings, sorting, triplet judgments, typicality); (ii)~the decoder's sites must be shown to correspond to psychological prototypes (typicality gradients, identification-categorization correspondence); and (iii)~the predicted learnability ordering (more design-optimal partitions learned faster, more accurately, and generalizing better) must be demonstrated in human learners, not just in approximate-prototype or KNN surrogates. H4 (Contrast/Representation predicts held-out learnability) is testable both with machine learners (as a pilot proxy) and, crucially, with human concept-learning experiments. The pilot in \S\ref{sec:contrast} does the former; \S\ref{sec:extensions} describes what is needed for the latter.
+
+In short, the conceptual-space account makes the decoder geometry \emph{falsifiable}: if independently validated similarity structure, typicality, and human learning fail to track Contrast, Representation, or convexity, the account is weakened even though the decoder facts remain intact.
+
+\section{Prerequisite results from the companion paper}
+\label{sec:prerequisite}
+
+We summarize the decoder-side facts established in the companion paper \citep{companion}, which this paper takes as given.
+
+A multiclass linear probe (multinomial logistic regression) on a $d$-dimensional representation is equivalent to a power diagram: each class $k$ is assigned a site $p_k$ and weight $w_k$ such that the predicted label is $\arg\min_k (\lVert x-p_k\rVert^2 - w_k)$. Ordinary Voronoi diagrams are the special case $w_k=0$. The companion paper's decoder ladder evaluates increasingly flexible geometric decoders (D1~nearest centroid, D1o~centroid-offset diagram with centroids frozen and free offsets $\omega_k$, D2~learned ordinary Voronoi with single site per class and tied offsets, D3~power diagram with single site per class and free $\omega_k$, D4~unsupervised multi-prototype, D4d~discriminatively fit multi-prototype) under nested, writer/conversation-disjoint cross-validation with all preprocessing fitted inside training folds. Across crowd-enVENT (appraisal-21 and frozen \texttt{roberta-base} / \texttt{deberta-v3-base} / \texttt{xlm-roberta-base} hidden states) and EmoTwiCS, the single-prototype power diagram (D3, with D2 close behind under a gauge equivalence) minimizes held-out log loss among single-prototype decoders, while discriminatively fit multi-prototype diagrams (D4d) match (hidden states) or substantially beat (appraisals) D3 when sites are free to move---diagnostics show the unsupervised multi-prototype estimator (D4), not multi-prototype geometry per se, drives the earlier degradation. At fixed centroids, freeing per-class offsets (D1o vs.\ D1) yields a small but reliable improvement ($0.019$~bits on appraisals, $0.023$~bits on hidden states, with bootstrap intervals excluding zero). These facts fix the parsimony baseline and the relevant geometric family (power/Voronoi) for the conceptual-space tests that follow, but they do not themselves validate the psychological interpretation of that geometry.
+
+\section{Pilot study: Contrast, Representation, and learnability}
+\label{sec:contrast}
+
+The companion paper's decoder ladder identifies D2/D3 as a strong parsimonious single-prototype baseline for held-out description length, while the discriminative multi-prototype diagnostic shows that single-cell geometry is not uniquely favored. We now ask a complementary question, restricted to ordinary Voronoi partitions: among Voronoi partitions of the same space, do the design-optimality criteria of \citet{douven-gardenfors-2020} predict held-out learnability? This section reports an exploratory counterfactual-partition test on crowd-enVENT.
+
+\subsection{Design criteria}
+
+For sites $p_1,\ldots,p_K$, the source implementation accompanying Douven's computational work \citep{douven-code-2023} defines
+\begin{align}
+  \operatorname{Contrast}(P)
+    &= \sum_{1\leq j<k\leq K}\lVert p_j-p_k\rVert_2,\\
+  \operatorname{Representation}(P)
+    &= \sum_{k=1}^{K}\lVert p_k-\mu_k(P)\rVert_2,
+\end{align}
+where $\mu_k(P)$ is the centroid of the ordinary Voronoi cell induced by $p_k$ on the observed domain. Higher Contrast and lower Representation distance are favorable. No combined ratio is introduced here.
+
+\subsection{Counterfactual partitions}
+
+Two spaces are tested: 21D appraisal ratings standardized on each outer-training fold (A-21) and frozen \texttt{roberta-base} L12 mean-pooled hidden states for emotion-name-masked texts, standardized and reduced to 21 principal components on outer train only (H-PCA21). Raw distances are never compared across spaces.
+
+For each space and outer fold, 200 constellations of 13 distinct training items are sampled. Their sites induce ordinary nearest-site partitions on outer train and outer test. Empty training cells are rejected. Contrast and Representation are computed on outer train only. Each partition is learned with (i)~an approximate-prototype learner and (ii)~inverse-squared-distance KNN, then evaluated only on the held-out group-disjoint fold. The approximate-prototype learner has no iterative update: within each sampled training draw it replaces every induced cell by the arithmetic mean of its sampled member vectors and assigns each test vector to its nearest cell mean. Ten training draws are used per constellation, for 20{,}000 learner evaluations per space. The main outcome is normalized mutual information (NMI); macro-F1 and accuracy are descriptive secondary outcomes.
+
+The initial pilot sampled a capped number of individual items within each cell. Because this does not preserve complete writer/duplicate components, it is retained as exploratory. A post-audit sensitivity samples exactly 150 complete training components per repetition, rejects draws that fail to cover all 13 cells, and estimates within each fold
+\[
+  z(\mathrm{NMI})=\beta_0+\beta_C z(C)+\beta_R z(R)
+  +\beta_n z(n_{\mathrm{items}})+\varepsilon.
+\]
+The budget and covariate were selected after inspecting the first pilot, so this sensitivity remains exploratory rather than confirmatory.
+
+\subsection{Results}
+
+\begin{table}[ht]
+\centering\footnotesize
+\caption{Standardized foldwise regressions for held-out NMI; values are means over five outer folds. Every expected sign occurs in all five folds.}
+\label{tab:cr-pilot}
+\begin{tabular}{llrrr}
+\toprule
+Space & Learner & $\beta_C$ & $\beta_R$ & mean $R^2$\\
+\midrule
+A-21 & Approximate prototype & 0.631 & $-$0.619 & 0.259\\
+A-21 & Inverse-squared KNN    & 0.668 & $-$0.665 & 0.295\\
+H-PCA21 & Approximate prototype & 0.335 & $-$0.302 & 0.051\\
+H-PCA21 & Inverse-squared KNN    & 0.467 & $-$0.344 & 0.091\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:cr-pilot} shows the itemwise pilot. Greater Contrast and smaller Representation distance predict better held-out NMI in all five folds and both spaces. Contrast and Representation distance are positively correlated ($r=0.607$--$0.713$ in A-21 and $r=0.730$--$0.816$ in H-PCA21); the two design objectives therefore form a genuine trade-off, and their coefficient magnitudes should not be read as cleanly separable causal effects.
+
+These are modest associations: mean foldwise $R^2$ ranges from 0.04 to 0.30 across the two learners and spaces (Tables~\ref{tab:cr-pilot}--\ref{tab:cr-sensitivity}). Their sign consistency, rather than a separable causal interpretation or a fixed effect magnitude, is the useful exploratory result.
+
+\begin{table}[ht]
+\centering\footnotesize
+\caption{Complete-group sensitivity using exactly 150 complete writer/duplicate components per repetition and adjusting for the realized item count.}
+\label{tab:cr-sensitivity}
+\begin{tabular}{llrrrrr}
+\toprule
+Space & Learner & $\beta_C$ & $\beta_R$ & $\beta_n$ & $R^2$ & signs\\
+\midrule
+A-21 & Approximate prototype & 0.652 & $-$0.627 & $-$0.016 & 0.279 & 5/5, 5/5\\
+A-21 & Inverse-squared KNN    & 0.664 & $-$0.653 &  0.021 & 0.293 & 5/5, 5/5\\
+H-PCA21 & Approximate prototype & 0.376 & $-$0.328 & 0.038 & 0.073 & 5/5, 5/5\\
+H-PCA21 & Inverse-squared KNN    & 0.194 & $-$0.255 & 0.072 & 0.040 & 5/5, 5/5\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The complete-group sensitivity (Table~\ref{tab:cr-sensitivity}) preserves every coefficient direction in both spaces and learners. The H-PCA21 KNN Contrast coefficient is attenuated from 0.467 to 0.194, arguing for treating sign stability as the useful pilot result and not treating effect magnitude as fixed.
+
+\subsection{Observed emotion labels}
+
+Class centroids estimated on each outer-training fold were used as ordinary Voronoi sites and evaluated on outer test. Their mean macro-F1/NMI are 0.343/0.270 in A-21 and 0.346/0.200 in H-PCA21. Thus, ordinary centroid Voronoi cells are not faithful enough to identify the prompted labels with the induced regions without qualification.
+
+Relative to the 200 item-site constellations in each fold, observed centroids have more favorable Representation distance than every random draw, but less favorable Contrast than every draw (smoothed favorable ranks 1.000 and 0.005, respectively). This is an extreme compromise, not joint dominance. In all five folds and both spaces, observed centroids jointly dominate all 1{,}000 support-preserving label-permutation centroids ($p_C=p_R=1/1001$; no draw was at least as extreme, so this is the add-one Monte-Carlo resolution floor rather than an estimate of the exact permutation tail probability), but all 1{,}000 centroids of counterfactual induced cells jointly dominate the observed centroids ($p_C=p_R=1$). The observed geometry is thus strongly non-random yet far from the explicit centroidal design reference. A preregistered held-out fidelity criterion would still have to be passed before interpreting this result as evidence about naturalness.
+
+\section{Required empirical extensions}
+\label{sec:extensions}
+
+The pilot in \S\ref{sec:contrast} is exploratory and lacunary by design. This section sketches---without implementing---the three extensions needed to turn the four hypotheses into a genuine conceptual-space test. Each subsection is a placeholder for future confirmatory work.
+
+\subsection{Confirmatory Contrast/Representation test}
+\label{sec:ext-confirmatory}
+
+\emph{Goal:} Preregistered replication of the Contrast/Representation $\to$ learnability association with frozen budgets, proper uncertainty quantification, and an explicit fidelity criterion.
+
+\emph{Design sketch:} (i)~Freeze the complete-group sampling budget (e.g., 150 complete writer/duplicate components per repetition) and learner parameters (approximate-prototype and inverse-squared-distance KNN) \emph{before} seeing new data. (ii)~Retain repetitions rather than averaging them; estimate a multilevel model with constellation-level random effects or cluster-robust standard errors at the constellation level to account for the ten training draws per constellation. (iii)~Use new random seeds and held-out writers/conversations, preregistered on OSF. (iv)~Report Contrast--Representation collinearity (variance inflation, bivariate $r$) and do not interpret $\beta_C$ and $\beta_R$ as separable causal effects. (v)~Preregister a fidelity criterion for ``observed centroids count as design-optimal'': e.g., jointly dominating at least 95\% of support-preserving label-permutation centroids on \emph{both} criteria, or exceeding the Pareto frontier of counterfactual cells in at least one space. (vi)~Correlate Contrast and Representation with held-out code length from the companion paper's decoder ladder across folds to test directly whether design-optimality tracks description length.
+
+\emph{Expected contribution:} Distinguishes sign consistency (the pilot's useful signal) from effect magnitude and separability, and puts the observed-geometry claim on a confirmatory footing.
+
+\subsection{Independent psychological validation of the metric}
+\label{sec:ext-metric}
+
+\emph{Goal:} Test H1 and H2: does the Euclidean metric in standardized appraisal or H-PCA21 space track psychological similarity, and do learned sites correspond to cognitive prototypes?
+
+\emph{Design sketch:} Independent behavioural data on the same stimulus set: (a)~pairwise similarity judgments (7-point or spatial arrangement), (b)~free sorting / pile sorting, (c)~triplet odd-one-out judgments, (d)~typicality ratings per item--category pair, and (e)~prototype generation or identification. Analyses: (i)~Correlate pairwise Euclidean distances with mean human similarity (Spearman $r$, MDS stress, triplet accuracy). (ii)~Test identification--categorization correspondence \citep{nosofsky1986attention}: does distance to the decoder site predict categorization probability and response time? (iii)~Compare decoder sites $p_k$ with human typicality centroids and generated prototypes (cosine/ Euclidean alignment). (iv)~Fit metric-learning alternatives (diagonal or low-rank Mahalanobis) and test whether the best-fitting psychological metric changes the Contrast/Representation ordering.
+
+\emph{Expected contribution:} Provides the missing link between decoder distance and psychological distance. Without it, Contrast and Representation are geometric descriptors of a machine space, not evidence for conceptual structure. If the standardized Euclidean metric fails to track human similarity, the natural next step is to re-derive site-based partitions under the empirically validated metric and re-evaluate H3--H4.
+
+\subsection{Human concept learning experiment}
+\label{sec:ext-learning}
+
+\emph{Goal:} Test H3 and H4 causally in humans: do partitions with higher Contrast and better Representation (and, relatedly, convex/connected structure) produce faster learning, higher accuracy, better generalization, and stronger retention?
+
+\emph{Design sketch:} Artificial category-learning experiment using the same embedding spaces as stimuli. (i)~Sample Voronoi partitions that span the empirical Contrast/Representation distribution (low/high $\times$ low/high, plus Pareto-optimal and anti-optimal extremes), matched on number of categories ($K=13$ or a reduced $K$ for human feasibility, e.g., $K=4$--$6$) and on surface form (mask emotion names, use appraisal vignettes or synthetic texts). (ii)~Between-subjects manipulation: each participant learns one partition via trial-by-trial feedback. (iii)~Primary outcomes: trials to criterion (e.g., 90\% accuracy over a sliding window), asymptotic accuracy, generalization to held-out items from the same cells, and retention after delay. Secondary: mouse-tracking or response-time signatures of similarity-based processing. (iv)~Preregistered mixed-effects model: learning outcome $\sim$ Contrast + Representation + (1|participant) + (1|partition constellation), testing both main effects and the Pareto-dominance prediction. (v)~Connect to convexity vs.\ connectedness \citep{douven-verheyen-2026} by including a non-convex/connected-but-non-convex control partition matched on Contrast/Representation.
+
+\emph{Expected contribution:} The decisive test of the conceptual-space account. Machine-learner NMI in the pilot is only a proxy for naturalness; human learning of the same geometric partitions is the criterion that \citet{gardenfors2000conceptual} and \citet{douven-gardenfors-2020} invoke. A positive result (Pareto-optimal partitions learned faster and generalizing better) would provide converging evidence that the decoder's geometric parsimony is cognitively significant; a null or reversed result would show that decoder geometry and psychological geometry dissociate.
+
+\section{Discussion}
+\label{sec:discussion}
+
+The pilot and the proposed extensions together define a converging-evidence logic. The companion paper contributes the decoder-side necessity: emotion categories \emph{can} be carved as convex power-diagram cells with parsimonious single-prototype structure. The present pilot adds a first correlational link on the machine side: among random Voronoi partitions of appraisal and hidden-state spaces, more design-optimal partitions (higher Contrast, lower Representation) tend to yield higher held-out NMI, with sign consistency across all five folds but modest explanatory power ($R^2$ 0.04--0.30). The attenuation of the H-PCA21 KNN Contrast coefficient under the complete-group audit (0.467~$\to$~0.194) already signals that effect magnitude is not yet stable.
+
+Current limitations are therefore substantive. The pilot is exploratory: the 150-component budget and the item-count covariate were chosen after inspecting the first pilot, so the complete-group analysis remains exploratory rather than confirmatory. $R^2$ is modest and Contrast/Representation are collinear ($r\approx0.6$--$0.8$), so their coefficients cannot be given a separable causal interpretation. Observed emotion centroids are not faithful Voronoi classifiers on their own (macro-F1~$\approx$~0.34) and exhibit an extreme compromise---best Representation but worst Contrast among random draws---dominating label permutations yet dominated by counterfactual cells. Finally, and most importantly, the pilot uses machine learners (approximate prototype, KNN) as proxies for naturalness; it does not show that humans find the same partitions natural, nor that the Euclidean metric in which Contrast/Representation are computed matches psychological similarity.
+
+The extensions in \S\ref{sec:extensions} are designed to close exactly these gaps: a preregistered confirmatory replication with proper clustering and a fidelity criterion (\S\ref{sec:ext-confirmatory}), independent validation of the metric and the prototype--site mapping (\S\ref{sec:ext-metric}), and a controlled human learning experiment that manipulates design optimality and tracks learnability directly (\S\ref{sec:ext-learning}). The companion paper's decoder-side facts will remain necessary throughout---they fix the geometric family and the parsimony claim---but only together with these behavioural tests would they become sufficient for a conceptual-space account of emotion categories.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+Do emotion categories exhibit conceptual-space properties? The decoder geometry is compatible with such an account, and the exploratory Contrast/Representation pilot shows sign-consistent associations between design optimality and held-out learnability that are suggestive but not yet confirmatory. The similarity metric, the prototype interpretation, and the human learnability ordering remain untested. This paper has laid out what those tests should be; their outcomes will determine whether the parsimonious power-diagram structure uncovered in the companion paper reflects a cognitively natural partition or merely a convenient machine geometry.
+
+\begin{thebibliography}{99}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Aurenhammer(1987)]{aurenhammer1987power}
+Franz Aurenhammer.
+\newblock Power diagrams: properties, algorithms and applications.
+\newblock \emph{SIAM Journal on Computing}, 16\penalty0 (1):\penalty0 78--96,
+  1987.
+\newblock \doi{10.1137/0216006}.
+
+\bibitem[Companion(2026)]{companion}
+Authors.
+\newblock Emotion categories in frozen Transformer representations:
+  Leakage-controlled probing with appraisal residuals and geometric decoder
+  analysis.
+\newblock Companion paper, 2026.
+\newblock To appear.
+
+\bibitem[Douven(2023{\natexlab{a}})]{douven-2023-naturalness}
+Igor Douven.
+\newblock The role of naturalness in concept learning: {A} computational study.
+\newblock \emph{Minds and Machines}, 33:\penalty0 563--586, 2023{\natexlab{a}}.
+\newblock \doi{10.1007/s11023-023-09644-y}.
+
+\bibitem[Douven(2023{\natexlab{b}})]{douven-code-2023}
+Igor Douven.
+\newblock \emph{Concept Learning}, computational source code, commit
+  \texttt{2325717f68f9eecbc85cfa7d7e5ada0dc7e95679}, 2023{\natexlab{b}}.
+\newblock URL \url{https://github.com/IgorDouven/Concept_Learning}.
+
+\bibitem[Douven and G{\"a}rdenfors(2020)]{douven-gardenfors-2020}
+Igor Douven and Peter G{\"a}rdenfors.
+\newblock What are natural concepts? {A} design perspective.
+\newblock \emph{Mind \& Language}, 35\penalty0 (3):\penalty0 313--334, 2020.
+\newblock \doi{10.1111/mila.12240}.
+
+\bibitem[Douven and Verheyen(2026)]{douven-verheyen-2026}
+Igor Douven and Steven Verheyen.
+\newblock Concept learning: Convexity versus connectedness.
+\newblock \emph{Erkenntnis}, 91:\penalty0 445--462, 2026.
+\newblock \doi{10.1007/s10670-024-00909-1}.
+
+\bibitem[G{\"a}rdenfors(2000)]{gardenfors2000conceptual}
+Peter G{\"a}rdenfors.
+\newblock \emph{Conceptual Spaces: The Geometry of Thought}.
+\newblock MIT Press, Cambridge, MA, 2000.
+
+\bibitem[Nosofsky(1986)]{nosofsky1986attention}
+Robert~M. Nosofsky.
+\newblock Attention, similarity, and the identification--categorization
+  relationship.
+\newblock \emph{Journal of Experimental Psychology: General}, 115\penalty0
+  (1):\penalty0 39--57, 1986.
+\newblock \doi{10.1037/0096-3445.115.1.39}.
+
+\bibitem[Shepard(1987)]{shepard1987toward}
+Roger~N. Shepard.
+\newblock Toward a universal law of generalization for psychological science.
+\newblock \emph{Science}, 237\penalty0 (4820):\penalty0 1317--1323, 1987.
+\newblock \doi{10.1126/science.3629243}.
+
+\end{thebibliography}
+
+\end{document}

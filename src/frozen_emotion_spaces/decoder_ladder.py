@@ -56,7 +56,7 @@ EPS = 1e-12
 
 RUN_FORMAT = "frozen-emotion-spaces-decoder-ladder-diagnostic-v1"
 RUN_FILES = ("oof.parquet", "selections.parquet", "summary.json", "metadata.json")
-DECODERS = ("D0", "D1", "D2", "D3", "D4", "D4c", "D4d")
+DECODERS = ("D0", "D1", "D1o", "D2", "D3", "D4", "D4c", "D4d")
 
 
 # ---------------------------------------------------------------------------
@@ -110,6 +110,49 @@ def d1_proba(Z: FloatArray, centroids: FloatArray, gamma: float) -> FloatArray:
     """Nearest-centroid probabilities: softmax over ``-gamma * ||z - mu||^2``."""
 
     return _softmax(-float(gamma) * _squared_distances(Z, centroids))
+
+
+def fit_d1o(
+    Z: FloatArray, y: IntArray, gamma: float, C: float, *, n_classes: int
+) -> tuple[FloatArray, FloatArray]:
+    """Fit free power offsets on frozen class-centroid sites (D1o).
+
+    Scores are ``-gamma * ||z - c_k||^2 + omega_k`` with the sites ``c_k``
+    fixed at the training class centroids; only the offsets are learned.  For
+    fixed ``gamma`` the softmax loss is convex in ``omega``, and the ridge
+    penalty pins the otherwise free common-shift gauge of the offsets.
+    Returns ``(centroids, omega)``.
+    """
+
+    centroids = class_centroids(Z, y, n_classes)
+    d2 = _squared_distances(Z, centroids)
+    n = Z.shape[0]
+
+    def loss_grad(omega: FloatArray) -> tuple[float, FloatArray]:
+        log_p = log_softmax(-float(gamma) * d2 + omega[None, :], axis=1)
+        loss = -float(log_p[np.arange(n), y].mean())
+        P = np.exp(log_p)
+        P[np.arange(n), y] -= 1.0
+        reg = 1.0 / (float(C) * n)
+        loss += 0.5 * reg * float(omega @ omega)
+        return loss, P.mean(axis=0) + reg * omega
+
+    result = minimize(
+        loss_grad,
+        np.zeros(n_classes, dtype=np.float64),
+        jac=True,
+        method="L-BFGS-B",
+        options={"maxiter": LBFGS_MAXITER},
+    )
+    return centroids, result.x
+
+
+def d1o_proba(
+    Z: FloatArray, centroids: FloatArray, omega: FloatArray, gamma: float
+) -> FloatArray:
+    """Fixed-centroid offset probabilities: softmax over ``-gamma * d^2 + omega``."""
+
+    return _softmax(-float(gamma) * _squared_distances(Z, centroids) + omega[None, :])
 
 
 def _d2_loss_grad(
@@ -448,6 +491,12 @@ def _fit_predict_decoder(
         return d1_proba(
             Z_ev, class_centroids(Z_tr, y_tr, n_classes), float(params["gamma"])
         )
+    if decoder == "D1o":
+        centroids, omega = fit_d1o(
+            Z_tr, y_tr, float(params["gamma"]), float(params["C"]),
+            n_classes=n_classes,
+        )
+        return d1o_proba(Z_ev, centroids, omega, float(params["gamma"]))
     if decoder == "D2":
         return d2_proba(Z_ev, fit_d2(Z_tr, y_tr, float(params["C"]), n_classes=n_classes))
     if decoder == "D3":
@@ -480,6 +529,8 @@ def _param_grid(decoder: str) -> list[dict[str, float]]:
         return [{}]
     if decoder == "D1":
         return [{"gamma": g} for g in GAMMA_GRID]
+    if decoder == "D1o":
+        return [{"gamma": g, "C": c} for g in GAMMA_GRID for c in C_GRID]
     if decoder in ("D2", "D3"):
         return [{"C": c} for c in C_GRID]
     if decoder in ("D4", "D4c"):

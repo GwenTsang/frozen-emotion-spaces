@@ -284,6 +284,12 @@ def build_parser() -> argparse.ArgumentParser:
     ladder.add_argument("--layer", type=int, default=12)
     ladder.add_argument("--pooling", default="mean")
     ladder.add_argument("--pca-dim", type=int)
+    ladder.add_argument(
+        "--decoders",
+        nargs="+",
+        default=None,
+        help="subset of decoder names to run (default: all registered decoders)",
+    )
     ladder.add_argument("--output", type=Path, required=True)
     ladder.set_defaults(handler=_run_decoder_ladder)
 
@@ -763,6 +769,9 @@ def _run_decoder_ladder(arguments: argparse.Namespace) -> None:
             expected_item_ids=item_ids,
         )
         features = np.asarray(hidden, dtype=np.float64)
+    from .decoder_ladder import DECODERS
+
+    decoders = tuple(arguments.decoders) if arguments.decoders else DECODERS
     artifact = run_decoder_ladder(
         arguments.output,
         space=arguments.space,
@@ -773,6 +782,7 @@ def _run_decoder_ladder(arguments: argparse.Namespace) -> None:
         outer_folds=outer,
         inner_folds=splits.crowd_full_inner,
         pca_dim=arguments.pca_dim,
+        decoders=decoders,
     )
     _print_artifact(artifact.directory, artifact.metadata)
 

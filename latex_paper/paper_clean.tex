@@ -10,7 +10,7 @@
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{siunitx}
+\IfFileExists{siunitx.sty}{\usepackage{siunitx}}{}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage[round,authoryear]{natbib}
@@ -20,8 +20,8 @@
 \newcommand{\HtoY}{$H\!\rightarrow\!Y$}
 \newcommand{\AHtoY}{$[A;H]\!\rightarrow\!Y$}
 
-\title{Emotion Categories in Appraisal and Transformer Spaces\\[6pt]
-{\large Leakage-Controlled Frozen Probing and Geometric Decoder Tests}}
+\title{Emotion Categories in Frozen Transformer Representations\\[6pt]
+{\large Leakage-Controlled Probing with Appraisal Residuals and Geometric Decoder Analysis}}
 \author{}
 \date{}
 
@@ -29,28 +29,27 @@
 \maketitle
 
 \begin{abstract}
-We ask where emotion-category labels are linearly accessible in frozen Transformer representations under a leakage-controlled protocol. On crowd-enVENT (13 writer-prompted categories, 21-dimensional appraisal ratings) and EmoTwiCS (multilabel Dutch customer-service tweets, 9 categories), we compare appraisal-to-label (\AtoY), hidden-state-to-label (\HtoY), and combined (\AHtoY) decoders with every data-dependent operation fitted inside training folds and writer/conversation-disjoint splits. Layerwise frozen probes show mid-to-late accessibility; writer appraisals add 0.28--0.47~bits of conditional held-out information beyond frozen text at the final layer (0.55--0.62~bits early, when $H$ is less informative and leaves more residual for $A$), conditional on writer-as-common-rater for $A$ and $Y$, with group-bootstrap intervals excluding zero across three encoder families; a train-fold PCA dimensionality control finds this gain largely low-rank (the top three appraisal components retain 67--77\%) yet with a statistically significant fine-grained residual through ten components, while broad VAD adds $\sim$0.06~bits on EmoTwiCS. An exploratory counterfactual-partition test on crowd-enVENT shows modest but sign-consistent associations with held-out learnability in both appraisal and frozen-text spaces (foldwise $R^2=0.04$--$0.30$): greater Contrast and smaller Representation distance \citep{douven-gardenfors-2020} predict better held-out learnability, though observed emotion labels occupy an extreme design trade-off rather than jointly dominating random constellations.
+We ask where emotion-category labels are linearly accessible in frozen Transformer representations under a leakage-controlled protocol. On crowd-enVENT (13 writer-prompted categories, 21-dimensional appraisal ratings) and EmoTwiCS (multilabel Dutch customer-service tweets, 9 categories), we compare appraisal-to-label (\AtoY), hidden-state-to-label (\HtoY), and combined (\AHtoY) decoders with every data-dependent operation fitted inside training folds and writer/conversation-disjoint splits. Layerwise frozen probes show mid-to-late accessibility; writer appraisals add 0.28--0.47~bits of conditional held-out information beyond frozen text at the final layer (0.55--0.62~bits early, when $H$ is less informative and leaves more residual for $A$), conditional on writer-as-common-rater for $A$ and $Y$, with group-bootstrap intervals excluding zero across three encoder families; a train-fold PCA dimensionality control finds this gain largely low-rank (the top three appraisal components retain 67--77\%) yet with a statistically significant fine-grained residual through ten components, while broad VAD adds $\sim$0.06~bits on EmoTwiCS. The geometric rewriting of linear probes as power diagrams motivates a decoder-complexity ladder from nearest-centroid through multi-prototype designs; targeted diagnostics show that the multi-prototype degradation under $k$-means reflects the unsupervised estimator, not single-cell geometry, and a discriminative multi-prototype fit matches or improves on the unconstrained single-prototype decoder.
 \end{abstract}
 
 \section{Introduction}
 
 The question is not whether emotion categories are ontologically real but where a fixed, low-capacity decoder can access their labels. We contrast three spaces: categorical $Y$, appraisal $A$ (21D writer ratings in crowd-enVENT), and frozen Transformer hidden states $H$ (768D). A fourth, valence--arousal--dominance (VAD, 3D), serves only as an EmoTwiCS auxiliary.
 
-A linear probe is algebraically equivalent to a power diagram---a convex tessellation of the representation space. This geometric rewriting invites comparison with conceptual-space theories that identify natural concepts with convex regions of a similarity space \citep{gardenfors2000conceptual,douven-gardenfors-2020}. We stress from the outset that decoder geometry is not psychological geometry: the equivalence is a mathematical property of the classifier, not evidence for psychological convexity, prototypes, or a metric. What it does provide is a concrete, testable bridge: if further empirical constraints (similarity judgments, typicality, learnability) were added, the decoder's geometric parameters could be compared with those predicted by conceptual-space accounts. This paper establishes the decoder-side facts and takes a first empirical step toward the learnability bridge via Contrast and Representation scores \citep{douven-2023-naturalness}; the full psychological validation remains future work.
+A linear probe is algebraically equivalent to a power diagram---a convex tessellation of the representation space \citep{aurenhammer1987power}. This geometric rewriting motivates a decoder-complexity ladder that tests which geometric restrictions suffice. The equivalence may provide a bridge to conceptual-space accounts of natural concepts \citep{gardenfors2000conceptual,douven-gardenfors-2020}, but we do not test that psychological interpretation here.
 
-Four questions structure the investigation:
+Three questions structure the investigation:
 \begin{itemize}
 \item[\emph{Q1.}] \emph{Accessibility:} where are emotion-category labels linearly accessible in frozen representations?
 \item[\emph{Q2.}] \emph{Appraisal residual:} what do explicit appraisals contribute beyond frozen text representations, and how low-dimensional is that contribution?
 \item[\emph{Q3.}] \emph{Geometry:} what geometric restrictions suffice for decoding these categories?
-\item[\emph{Q4.}] \emph{Design optimality:} do Contrast and Representation scores of Voronoi partitions predict held-out learnability?
 \end{itemize}
 
 \citet{troiano-etal-2023-dimensional} already compared appraisal-to-emotion, text-to-emotion, and text-plus-appraisal models on crowd-enVENT with a fine-tuned encoder. Our contribution is different: we freeze every backbone parameter, resolve every layer, exclude author and duplicate leakage, nest all model selection, and quantify information rather than only accuracy. Controls (lexical, random-encoder), conditional held-out information \citep{hewitt-etal-2021-conditional}, and a geometric decoder ladder are evaluated under the same nested protocol. EmoTwiCS \citep{labat-etal-2024-emotwics,labat-etal-2022-emotional} supplies a structurally different, multilingual, multilabel setting.
 
 We interpret probes as protocol-relative usable information \citep{xu2020theory}. Control tasks and capacity constrain interpretation \citep{hewitt-liang-2019-designing,pimentel-etal-2020-information,pimentel-etal-2020-pareto}; conditional probing asks what one representation adds beyond another \citep{hewitt-etal-2021-conditional}. Decodability does not imply causal use by the model \citep{ravichander-etal-2021-probing}.
 
-\textbf{Contributions.} (1)~Leakage-controlled frozen layerwise accessibility across three base-scale encoders (RoBERTa, DeBERTa-v3, XLM-R) (Q1). (2)~Conditional appraisal gain of 0.28--0.47~bits beyond frozen text, with a cross-rater control, a VAD auxiliary at $\sim$0.06~bits (indirect cross-corpus), and a fold-specific PCA dimensionality control localizing most of the gain in the top three appraisal components (67--77\%) while a significant residual persists through ten components (Q2). (3)~Geometric decoder tests with targeted multi-prototype diagnostics showing that the unsupervised site estimator, not multi-prototype geometry, drives the multi-prototype degradation: centroid anchoring does not recover it, while a discriminative multi-prototype fit eliminates it and, on appraisals, significantly improves on the single-prototype power diagram (Q3). (4)~An exploratory counterfactual-partition test showing that greater Contrast and smaller Representation distance predict better held-out learnability in both appraisal and frozen-text spaces, with observed labels occupying an extreme design trade-off rather than jointly dominating random constellations (Q4). (5)~Consolidated perspectives for confirmatory conceptual-space tests.
+\textbf{Contributions.} (1)~Leakage-controlled frozen layerwise accessibility across three base-scale encoders (RoBERTa, DeBERTa-v3, XLM-R) (Q1). (2)~Conditional appraisal gain of 0.28--0.47~bits beyond frozen text, with a cross-rater control, a VAD auxiliary at $\sim$0.06~bits (indirect cross-corpus), and a fold-specific PCA dimensionality control localizing most of the gain in the top three appraisal components (67--77\%) while a significant residual persists through ten components (Q2). (3)~Geometric decoder tests with targeted multi-prototype diagnostics showing that the unsupervised site estimator, not multi-prototype geometry, drives the multi-prototype degradation: centroid anchoring does not recover it, while a discriminative multi-prototype fit eliminates it and, on appraisals, significantly improves on the single-prototype power diagram (Q3).
 
 \section{Data and leakage-controlled protocol}
 \label{sec:protocol}
@@ -84,7 +83,7 @@ All data-dependent operations---per-coordinate standardization, block scaling, o
 
 Splits are group-aware: connected components of writer (crowd-enVENT) or conversation (EmoTwiCS) plus normalized duplicate texts define groups. Evaluation uses five outer folds and three inner folds for hyperparameter selection (regularization strength $C$, and for EmoTwiCS a global threshold). Inner selection optimizes held-out log loss (or macro-F1 where noted). A sealed validated partition is held out as an external test and never informs any selection. The same outer/inner splits are reused across every representation and decoder so that paired $\Delta L$ is well-defined itemwise. Group-bootstrap intervals preserve writer/conversation dependence.
 
-The reported group-bootstrap intervals have nominal 95\% coverage for their individual paired contrasts; no simultaneous, across-table multiplicity adjustment is claimed. They are therefore per-contrast uncertainty statements, not a global pass/fail criterion. The explicitly exploratory Contrast/Representation analysis is interpreted separately (\S\ref{sec:contrast}).
+The reported group-bootstrap intervals have nominal 95\% coverage for their individual paired contrasts; no simultaneous, across-table multiplicity adjustment is claimed. They are therefore per-contrast uncertainty statements, not a global pass/fail criterion.
 
 The same protocol applies to lexical and control baselines, so differences cannot be attributed to leakage or selection asymmetry.
 
@@ -255,7 +254,7 @@ The cell associated with site $k$ is
 \begin{equation}
 P_k=\left\{z:\pi_k(z)\leq\pi_j(z)\quad\forall j\right\}. \label{eq:powcell}
 \end{equation}
-Thus $\omega_k$ acts as a site-specific additive advantage: increasing $\omega_k$ lowers the score of site $k$ uniformly over the space and can expand its cell. Ordinary Voronoi diagrams are the special case in which all $\omega_k$ are equal (in particular, all zero); only weight differences matter, since adding a common constant to all $\omega_k$ leaves the partition unchanged. The decoder ladder of \S\ref{sec:ladder} tests precisely this passage from tied to free $\omega_k$.\footnote{When $\omega_k\geq0$, one may write $\omega_k=r_k^2$ and interpret the construction through the classical power of a point with respect to spheres of radius $r_k$, hence the name \emph{power diagram}. We do not use this representation because it is non-canonical for our purposes: the gauge freedom $(\omega_1,\dots,\omega_K)\sim(\omega_1+c,\dots,\omega_K+c)$ maps one and the same tessellation to infinitely many radius collections---choosing $c$ large enough to make all weights nonnegative always yields \emph{some} such radii---while the objects of interest here are the class regions themselves.}
+Thus $\omega_k$ acts as a site-specific additive advantage: increasing $\omega_k$ lowers the score of site $k$ uniformly over the space and can expand its cell. Ordinary Voronoi diagrams are the special case in which all $\omega_k$ are equal (in particular, all zero); only weight differences matter, since adding a common constant to all $\omega_k$ leaves the partition unchanged. The decoder ladder of \S\ref{sec:ladder-defs} tests this passage both at fixed sites (D1$\to$D1o) and with re-fitted sites (D2$\to$D3), where a gauge equivalence makes the two predictive classes coincide (see \S\ref{sec:ladder-defs}).\footnote{When $\omega_k\geq0$, one may write $\omega_k=r_k^2$ and interpret the construction through the classical power of a point with respect to spheres of radius $r_k$, hence the name \emph{power diagram}. The representation is non-canonical, however, because the partition is invariant under $(\omega_1,\dots,\omega_K)\mapsto(\omega_1+c,\dots,\omega_K+c)$, so infinitely many radius collections yield the same diagram. We therefore prefer the additive-advantage interpretation in the main text.}
 
 For two sites $p_i$ and $p_j$, their power boundary satisfies
 \begin{equation}
@@ -302,7 +301,7 @@ Power diagrams therefore generalize Voronoi diagrams while retaining convex poly
   \draw[bnd] (0.666,-0.008) -- (-1.3,-1.038);
   \draw[bnd] (0.666,-0.008) -- (3.204,-1.8);
   % displacement arrow between old bisector and power boundary
-  \draw[<->,gray] (1.263,1.55) -- (0.946,1.605)
+  \draw[<->,gray] (1.09,0.55) -- (0.78,0.60)
     node[midway,above,font=\footnotesize] {$\delta_{12}$};
   % sites
   \node[site,label=above left:{$p_1$}] at (0,1.1) {};
@@ -330,21 +329,23 @@ and noting $\|z\|^{2}$ is common to all $k$,
 \begin{equation}
 \hat y(z)=\arg\min_{k}\{\|z-p_{k}\|^{2}-\omega_{k}\}. \label{eq:voronoi}
 \end{equation}
-Equation~\eqref{eq:voronoi} is exactly the power-diagram assignment rule of \eqref{eq:powcell} with sites and weights given by \eqref{eq:pow}: every multiclass linear probe induces a power diagram in the preprocessed coordinate system, and conversely. Each class region is a (possibly empty) convex polyhedron; boundaries are hyperplanes. The equivalence is algebraic, not evidence that categories are psychologically convex or prototype-based \citep{gardenfors2000conceptual}. However, it places the decoder ladder in correspondence with the design-criteria framework of \citet{douven-gardenfors-2020}, who argue that natural concepts are cells of optimally partitioned similarity spaces satisfying parsimony, informativeness, and learnability; independent computational evidence shows that convex (Voronoi) partitions are learned significantly faster than merely connected ones \citep{douven-verheyen-2026,douven-2023-naturalness}.
+Equation~\eqref{eq:voronoi} is exactly the power-diagram assignment rule of \eqref{eq:powcell} with sites and weights given by \eqref{eq:pow}: every multiclass linear probe induces a power diagram in the preprocessed coordinate system, and conversely. Each class region is a (possibly empty) convex polyhedron; boundaries are hyperplanes. The equivalence is algebraic, not evidence that categories are psychologically convex or prototype-based \citep{gardenfors2000conceptual}. This geometric formulation may provide a bridge to conceptual-space accounts that identify natural concepts with convex regions \citep{gardenfors2000conceptual,douven-gardenfors-2020}, but we do not test that psychological interpretation here.
 Two caveats are essential. First, preprocessing-relativity: Euclidean distance in $z$ equals a diagonal Mahalanobis distance (plus rotation if PCA is applied) in raw coordinates, so no Euclidean metric in raw appraisal or hidden space is identified. Second, identification: softmax scores are invariant to adding a common affine function to every class, so absolute sites $p_{k}$ are convention-dependent (e.g.\ $\sum_{k}w_{k}=0$); invariant quantities are pairwise boundaries $w_{k}-w_{j}$, offsets $b_{k}-b_{j}$, and cell adjacencies. Sites are discriminative parameters, not empirical centroids, and not psychological prototypes absent similarity/typicality validation \citep{nosofsky1986attention,shepard1987toward}.
-
 \subsection{Nested geometric restrictions}
+\label{sec:ladder-defs}
 
-We evaluate decoders on the \emph{same} frozen $z$ and the \emph{same} outer/inner split lock as \S\S\ref{sec:layerwise}--\ref{sec:conditional}, differing only in free parameters, ordered by expressive power: prior-only (D0), nearest centroid (D1), ordinary Voronoi (D2, single site/class, tied $\omega$), power diagram (D3, single site/class, free $\omega_{k}$---equivalent to unconstrained logistic regression via \eqref{eq:pow}), and multi-prototype (D4, $m=2$--$3$ sites/class). D1 and D4 convert squared-distance scores to probabilities through $\operatorname{softmax}(-\gamma d_k^2)$: $\gamma$ leaves hard nearest-site assignments unchanged but calibrates the held-out log loss. Table~\ref{tab:ladder} retains the historical D1/D4 values obtained with a fixed $\gamma$. Table~\ref{tab:ladder-diag} gives matched diagnostic reruns, in which $\gamma$, $m\in\{2,3\}$ for D4/D4c/D4d, and $C$ are selected on inner folds. D2$\to$D3 quantifies \emph{offset need}. Two diagnostic variants extend D4 (\S\ref{sec:ladder}): centroid-anchored $k$-means (D4c; one site per class frozen at the D1 centroid) and a discriminative multi-prototype fit (D4d; the $k$-means sites optimized by L-BFGS on the multiclass loss with log-sum-exp site aggregation, so $m{=}1$ recovers D3 exactly). All are CPU-only $L$-BFGS / $k$-means fits.\footnote{A shared-Mahalanobis power diagram with metric $M$, free sites $p_k$, and free offsets $\omega_k$ assigns class scores $-(z-p_k)^\top\!M(z-p_k)+\omega_k$. Because the quadratic term $z^\top\!Mz$ is common to all $k$, the decision rule reduces to $\arg\max_k\,(2p_k^\top\!Mz - p_k^\top\!Mp_k + \omega_k)$, which is affine in $z$---algebraically equivalent to D3. Introducing $M$ therefore changes the parametrisation, not the class of realisable decision boundaries.}
+We evaluate decoders on the \emph{same} frozen $z$ and the \emph{same} outer/inner split lock as \S\S\ref{sec:layerwise}--\ref{sec:conditional}, differing only in which geometric parameters are fitted: prior-only (D0), nearest centroid (D1), centroid-offset diagram (D1o: D1 centroids frozen, free per-class offsets $\omega_k$, shared scale $\gamma$), ordinary Voronoi (D2, single site/class, tied $\omega$), power diagram (D3, single site/class, free $\omega_{k}$---equivalent to unconstrained logistic regression via \eqref{eq:pow}), and multi-prototype (D4, $m=2$--$3$ sites/class). D1 and D4 convert squared-distance scores to probabilities through $\operatorname{softmax}(-\gamma d_k^2)$; D1o uses $\operatorname{softmax}_k(-\gamma\|z-c_k\|^2+\omega_k)$, keeping the sites $c_k$ fixed at the D1 centroids and learning only the free offsets $\omega_k$.  In all three, $\gamma$ leaves hard nearest-site assignments unchanged but calibrates the held-out log loss. Table~\ref{tab:ladder} retains the historical D1/D4 values obtained with a fixed $\gamma$. Table~\ref{tab:ladder-diag} gives matched diagnostic reruns, in which $\gamma$, $m\in\{2,3\}$ for D4/D4c/D4d, and $C$ are selected on inner folds. D1$\to$D1o quantifies \emph{offset need} at fixed prototype geometry. Two diagnostic variants extend D4 (\S\ref{sec:ladder}): centroid-anchored $k$-means (D4c; one site per class frozen at the D1 centroid) and a discriminative multi-prototype fit (D4d; the $k$-means sites optimized by L-BFGS on the multiclass loss with log-sum-exp site aggregation, so $m{=}1$ recovers D3 exactly). All are CPU-only $L$-BFGS / $k$-means fits.\footnote{A shared-Mahalanobis power diagram with metric $M$, free sites $p_k$, and free offsets $\omega_k$ assigns class scores $-(z-p_k)^\top\!M(z-p_k)+\omega_k$. Because the quadratic term $z^\top\!Mz$ is common to all $k$, the decision rule reduces to $\arg\max_k\,(2p_k^\top\!Mz - p_k^\top\!Mp_k + \omega_k)$, which is affine in $z$---algebraically equivalent to D3. Introducing $M$ therefore changes the parametrisation, not the class of realisable decision boundaries.}
+
+Because the softmax gauge freedom $(w_k,b_k)\mapsto(w_k+a,\,b_k+c)$ acts on the power representation as $p_k\mapsto p_k+a/2$ and $\omega_k\mapsto\omega_k+c+\tfrac12 w_k^\top a+\tfrac14\|a\|^2$, any fitted D3 diagram can be re-expressed as an ordinary Voronoi diagram with identical probabilities whenever the linear system $(w_k-w_1)^\top a=-2(b_k-b_1)-\tfrac12(\|w_k\|^2-\|w_1\|^2)$, $k=2,\dots,K$, admits a solution. This is a $(K-1)\times D$ system. For every fitted D3 solution in the present experiments, the $((K-1)\times D)$ weight-difference matrix has full row rank $K-1$ (verified on every fold of both spaces), so an exactly prediction-equivalent ordinary-Voronoi reparametrisation exists. Thus the observed D2/D3 gap reflects ridge and optimisation differences between the two parametrisations rather than a need for offsets.
 
 \begin{table}[t]
 \centering\footnotesize
-\caption{Decoder ladder on crowd-enVENT (5 outer / 3 inner group-aware folds; $T_{\mathrm{train}}$ fitted train-only). Log loss is held-out cross-entropy; code length $\approx N\!\times\!L$. $\Delta$ vs.\ prior is negative when saving bits. Incremental $2\!\to\!3$ = offset need (Voronoi $\to$ power). $N=6600$, $K=13$. Shared-Mahalanobis variants are algebraically equivalent to D3 in decision boundaries (see footnote in text) and omitted.}
+\caption{Decoder ladder on crowd-enVENT (5 outer / 3 inner group-aware folds; $T_{\mathrm{train}}$ fitted train-only). Log loss is held-out cross-entropy; code length $\approx N\!\times\!L$. $\Delta$ vs.\ prior is negative when saving bits. D2--D3 gap (bits) reflects the residual between tied- and free-$\omega$ parametrisations under the gauge equivalence discussed in the text. $N=6600$, $K=13$. Shared-Mahalanobis variants are algebraically equivalent to D3 in decision boundaries (see footnote in text) and omitted.}
 \label{tab:ladder}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lccccc}
 \toprule
-Decoder & $L$ (nats) & $L$ (bits) & Total (kbits) & $\Delta$ vs prior (bits) & Incl.\ $2\!\to\!3$ (bits) \\
+Decoder & $L$ (nats) & $L$ (bits) & Total (kbits) & $\Delta$ vs prior (bits) & D2--D3 gap (bits) \\
 \midrule
 \multicolumn{6}{c}{\textit{Appraisal $A$ 21D (standardized)}} \\
 Prior-only (D0) & $2.544\pm0.002$ & $3.671\pm0.003$ & 24.23 & 0.000 & -- \\
@@ -366,23 +367,24 @@ Multi-prototype (D4) & $2.117\pm0.007$ & $3.055\pm0.010$ & 20.16 & --0.616 & -- 
 
 \subsection{Results}
 
-\textbf{Ordinary Voronoi $\approx$ power diagram.} For $A$ 21D, D2--D3 differ by $0.004$~bits/label (0.003~nats); for $H$ PCA64, by $0.009$~bits (0.006~nats), both within standard error (Table~\ref{tab:ladder}). The equal-weight (tied-$\omega$) restriction is not rejected: the additional geometric freedom afforded by power weighting---parallel translation of pairwise Voronoi boundaries through class-specific offsets, \eqref{eq:disp}---provides negligible held-out improvement. Geometrically, the boundaries of a single-prototype description barely need to be displaced from the perpendicular bisectors of the class sites.
+\textbf{D2 $\approx$ D3 is a parametrisation equivalence, not evidence that offsets are unneeded.} For $A$ 21D, D2--D3 differ by $0.002$~bits/label; for $H$ PCA64, by $<0.01$~bits (Table~\ref{tab:ladder}). This is expected: under the softmax gauge, every fitted D3 solution in the present experiments has a weight-difference matrix of full row rank $K-1=12$, and therefore admits an prediction-equivalent ordinary-Voronoi reparametrisation (\S\ref{sec:ladder-defs}). The residual gap reflects ridge regularisation and L-BFGS convergence differences between tied-$\omega$ and free-$\omega$ parametrisations, not a structural need for offsets. The clean test of offset need fixes the sites and compares D1 to D1o: on $A$ 21D, freeing the offsets at frozen centroids improves held-out loss by $0.019$~bits (95\% CI $[-0.026, -0.013]$); on $H$ PCA64, by $0.023$~bits (95\% CI $[-0.029, -0.017]$), confirming that offsets contribute marginally when prototype locations are held fixed. Allowing the sites themselves to move (D1o$\to$D3) yields a substantially larger improvement: $0.220$~bits on $A$, $0.371$~bits on $H$.
 
 \textbf{Historical ladder: multi-prototype $k$-means degrades relative to D3.} In the preserved historical ladder of Table~\ref{tab:ladder}, D4 ($m=2$--$3$ per class, $k$-means with 5 restarts) \emph{increases} held-out code length by 0.50~bits ($A$) and 0.85~bits ($H$) relative to D3. With that table's fixed distance-scale calibration, D4 in the appraisal space also does not improve over D1 (2.973 vs.\ 2.931~bits), a classifier with no free parameters beyond the class centroids. Because $\gamma$ calibrates log loss, this D4/D1 ordering is protocol-specific; the robust question is whether the degradation relative to D3 reflects genuine single-cell structure or a systematic misalignment between the unsupervised $k$-means site estimator---which minimizes intra-class reconstruction error and has no mechanism to adjust sites with respect to adjacent classes---and the discriminative geometry of the task.
 
-\textbf{Estimator diagnostics.} We ran two targeted variants under the same nested protocol, with the distance scale $\gamma$ selected on inner folds for all distance-based decoders (Table~\ref{tab:ladder-diag}). Under this matched calibration, D2/D3 levels are unchanged within 0.02~bits of Table~\ref{tab:ladder}, and unsupervised D4 remains significantly worse than D3 in both spaces ($+0.176$ [$0.152, 0.201$] on $A$; $+0.595$ [$0.556, 0.631$] on $H$); it is additionally worse than D1 in the hidden-state space ($2.793$ vs.\ $2.591$~bits, paired group-bootstrap 95\% CI for $\Delta$~$[0.173, 0.228]$). First, \emph{centroid anchoring} (D4c: one site per class frozen at the D1 centroid, $k$-means refining only the remaining $m{-}1$ sites) does not recover the loss---it degrades it further ($A$: $2.740$ vs.\ $2.654$, $+0.086$ [$0.064, 0.107$]; $H$: $3.124$ vs.\ $2.793$, $+0.331$ [$0.289, 0.371$])---arguing against a simple initialization-\emph{position} explanation relative to the D1 solution. Second, \emph{discriminative refinement} (D4d: the \emph{same} $k$-means sites optimized by L-BFGS on the multiclass softmax loss, with site scores aggregated per class by log-sum-exp, so that $m{=}1$ is an exact special case containing D3) eliminates the degradation entirely: D4d matches D3 on $H$ ($2.198$ vs.\ $2.197$~bits, $\Delta = +0.001$ [$-0.016, +0.018$]) and significantly improves on D3 on $A$ ($2.436$ vs.\ $2.478$~bits, $\Delta = -0.041$ [$-0.054, -0.029$]). This pattern strongly implicates the unsupervised reconstruction objective rather than the number of prototypes per se: multi-prototype structure does not hurt once sites are fit discriminatively, and in the appraisal space it helps.
+\textbf{Estimator diagnostics.} We ran targeted variants under the same nested protocol, with the distance scale $\gamma$ selected on inner folds for all distance-based decoders (Table~\ref{tab:ladder-diag}). The centroid-offset decoder D1o improves on D1 by $0.019$~bits on $A$ (95\% CI $[-0.026, -0.013]$) and $0.023$~bits on $H$ (95\% CI $[-0.029, -0.017]$), confirming that offsets carry marginal information when sites are held fixed. Under this matched calibration, D2/D3 levels are unchanged within 0.02~bits of Table~\ref{tab:ladder}, and unsupervised D4 remains significantly worse than D3 in both spaces ($+0.176$ [$0.152, 0.201$] on $A$; $+0.595$ [$0.556, 0.631$] on $H$); it is additionally worse than D1 in the hidden-state space ($2.793$ vs.\ $2.591$~bits, paired group-bootstrap 95\% CI for $\Delta$~$[0.173, 0.228]$). First, \emph{centroid anchoring} (D4c: one site per class frozen at the D1 centroid, $k$-means refining only the remaining $m{-}1$ sites) does not recover the loss of the discriminative D3 fit; second, \emph{discriminative refinement} (D4d: same $k$-means initialisation refined on the classification loss with log-sum-exp aggregation) matches D3 on $H$ ($2.198$ vs.\ $2.197$~bits) and significantly improves on it in the appraisal space ($2.436$ vs.\ $2.478$~bits, 95\% CI for $\Delta$~$[-0.054, -0.029]$), though whether this reflects genuine multi-cell structure or residual capacity effects requires confirmatory designs in future work.
 
 Site placement corroborates the mechanism. Relative to the D3 decision boundaries, unsupervised $k$-means sites sit inside their own class region (median signed margin $+0.12$ in standardized units, five outer folds), centroid-anchored sites deeper still ($+0.23$), while discriminatively refined sites move onto the boundaries (median $-0.10$; 63\% lie beyond their class side of at least one boundary, as do D3's own fitted sites; Figure~\ref{fig:multiprot-sites}).
 
 \begin{table}[t]
 \centering\footnotesize
-\caption{Multi-prototype estimator diagnostics on crowd-enVENT under the same nested protocol as Table~\ref{tab:ladder} (5 outer / 3 inner folds; $\gamma$, $m\in\{2,3\}$, and $C$ selected on inner folds; $\pm$ = fold SD). D4c freezes one site per class at the class centroid; D4d refines the same $k$-means initialization on the classification loss. Unlike Table~\ref{tab:ladder}, $\gamma$ is inner-tuned for D1/D4/D4c here. It calibrates log loss without changing nearest-site hard assignments, so absolute D1/D4 levels are not compared across tables; D2/D3 agree within $0.02$~bits. Paired group-bootstrap intervals for the key within-table contrasts are reported in the text.}
+\caption{Decoder diagnostics on crowd-enVENT under the same nested protocol as Table~\ref{tab:ladder} (5 outer / 3 inner folds; $\gamma$, $m\in\{2,3\}$, and $C$ selected on inner folds; $\pm$ = fold SD). D1o freezes sites at D1 centroids and fits free offsets $\omega_k$. D4c freezes one site per class at the class centroid; D4d refines the same $k$-means initialization on the classification loss. Unlike Table~\ref{tab:ladder}, $\gamma$ is inner-tuned for all distance-based decoders here. It calibrates log loss without changing nearest-site hard assignments, so absolute levels are not compared across tables; D2/D3 agree within $0.02$~bits. Paired group-bootstrap intervals for the key within-table contrasts are reported in the text.}
 \label{tab:ladder-diag}
 \begin{tabular}{lcc}
 \toprule
 Decoder & $A$ 21D, $L$ (bits) & $H$ PCA64, $L$ (bits) \\
 \midrule
 Nearest-centroid (D1) & $2.717\pm0.051$ & $2.591\pm0.061$ \\
+Centroid-offset (D1o) & $2.698\pm0.055$ & $2.569\pm0.063$ \\
 Power diagram (D3) & $2.478\pm0.051$ & $2.197\pm0.081$ \\
 Multi-prototype $k$-means (D4) & $2.654\pm0.053$ & $2.793\pm0.078$ \\
 \quad centroid-anchored (D4c) & $2.740\pm0.054$ & $3.124\pm0.144$ \\
@@ -398,104 +400,28 @@ Multi-prototype $k$-means (D4) & $2.654\pm0.053$ & $2.793\pm0.078$ \\
 \label{fig:multiprot-sites}
 \end{figure}
 
-The parsimonious description among single-prototype models is thus D2/D3: a power diagram with or without tied power weights. The diagnostics above qualify the original ``single-prototype suffices'' reading: single-cell structure is not supported as an intrinsic property---it is the unsupervised estimator that fails, and a discriminatively fit multi-prototype diagram matches (H) or significantly beats (A) D3. Whether the small appraisal-space gain of D4d reflects genuine multi-cell structure or residual capacity effects is a question for the confirmatory designs of \S\ref{sec:contrast}. For the multilabel EmoTwiCS task, independent one-vs-rest probes define overlapping half-spaces, not a single partition, so no conceptual-space claim transfers automatically.
-
-\section{Contrast, Representation, and learnability}
-\label{sec:contrast}
-
-The decoder ladder (\S\ref{sec:ladder}) identifies D2/D3 as a strong parsimonious single-prototype baseline for held-out description length, while the discriminative multi-prototype diagnostic shows that single-cell geometry is not uniquely favored. We now ask a complementary question, restricted to ordinary Voronoi partitions: among Voronoi partitions of the same space, do the design-optimality criteria of \citet{douven-gardenfors-2020} predict held-out learnability? This section reports an exploratory counterfactual-partition test on crowd-enVENT.
-
-\subsection{Design criteria}
-
-For sites $p_1,\ldots,p_K$, the source implementation accompanying Douven's computational work \citep{douven-code-2023} defines
-\begin{align}
-  \operatorname{Contrast}(P)
-    &= \sum_{1\leq j<k\leq K}\lVert p_j-p_k\rVert_2,\\
-  \operatorname{Representation}(P)
-    &= \sum_{k=1}^{K}\lVert p_k-\mu_k(P)\rVert_2,
-\end{align}
-where $\mu_k(P)$ is the centroid of the ordinary Voronoi cell induced by $p_k$ on the observed domain. Higher Contrast and lower Representation distance are favorable. No combined ratio is introduced here.
-
-\subsection{Counterfactual partitions}
-
-Two spaces are tested: 21D appraisal ratings standardized on each outer-training fold (A-21) and frozen \texttt{roberta-base} L12 mean-pooled hidden states for emotion-name-masked texts, standardized and reduced to 21 principal components on outer train only (H-PCA21). Raw distances are never compared across spaces.
-
-For each space and outer fold, 200 constellations of 13 distinct training items are sampled. Their sites induce ordinary nearest-site partitions on outer train and outer test. Empty training cells are rejected. Contrast and Representation are computed on outer train only. Each partition is learned with (i)~an approximate-prototype learner and (ii)~inverse-squared-distance KNN, then evaluated only on the held-out group-disjoint fold. The approximate-prototype learner has no iterative update: within each sampled training draw it replaces every induced cell by the arithmetic mean of its sampled member vectors and assigns each test vector to its nearest cell mean. Ten training draws are used per constellation, for 20{,}000 learner evaluations per space. The main outcome is normalized mutual information (NMI); macro-F1 and accuracy are descriptive secondary outcomes.
-
-The initial pilot sampled a capped number of individual items within each cell. Because this does not preserve complete writer/duplicate components, it is retained as exploratory. A post-audit sensitivity samples exactly 150 complete training components per repetition, rejects draws that fail to cover all 13 cells, and estimates within each fold
-\[
-  z(\mathrm{NMI})=\beta_0+\beta_C z(C)+\beta_R z(R)
-  +\beta_n z(n_{\mathrm{items}})+\varepsilon.
-\]
-The budget and covariate were selected after inspecting the first pilot, so this sensitivity remains exploratory rather than confirmatory.
-
-\subsection{Results}
-
-\begin{table}[ht]
-\centering\footnotesize
-\caption{Standardized foldwise regressions for held-out NMI; values are means over five outer folds. Every expected sign occurs in all five folds.}
-\label{tab:cr-pilot}
-\begin{tabular}{llrrr}
-\toprule
-Space & Learner & $\beta_C$ & $\beta_R$ & mean $R^2$\\
-\midrule
-A-21 & Approximate prototype & 0.631 & $-$0.619 & 0.259\\
-A-21 & Inverse-squared KNN    & 0.668 & $-$0.665 & 0.295\\
-H-PCA21 & Approximate prototype & 0.335 & $-$0.302 & 0.051\\
-H-PCA21 & Inverse-squared KNN    & 0.467 & $-$0.344 & 0.091\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Table~\ref{tab:cr-pilot} shows the itemwise pilot. Greater Contrast and smaller Representation distance predict better held-out NMI in all five folds and both spaces. Contrast and Representation distance are positively correlated ($r=0.607$--$0.713$ in A-21 and $r=0.730$--$0.816$ in H-PCA21); the two design objectives therefore form a genuine trade-off, and their coefficient magnitudes should not be read as cleanly separable causal effects.
-
-These are modest associations: mean foldwise $R^2$ ranges from 0.04 to 0.30 across the two learners and spaces (Tables~\ref{tab:cr-pilot}--\ref{tab:cr-sensitivity}). Their sign consistency, rather than a separable causal interpretation or a fixed effect magnitude, is the useful exploratory result.
-
-\begin{table}[ht]
-\centering\footnotesize
-\caption{Complete-group sensitivity using exactly 150 complete writer/duplicate components per repetition and adjusting for the realized item count.}
-\label{tab:cr-sensitivity}
-\begin{tabular}{llrrrrr}
-\toprule
-Space & Learner & $\beta_C$ & $\beta_R$ & $\beta_n$ & $R^2$ & signs\\
-\midrule
-A-21 & Approximate prototype & 0.652 & $-$0.627 & $-$0.016 & 0.279 & 5/5, 5/5\\
-A-21 & Inverse-squared KNN    & 0.664 & $-$0.653 &  0.021 & 0.293 & 5/5, 5/5\\
-H-PCA21 & Approximate prototype & 0.376 & $-$0.328 & 0.038 & 0.073 & 5/5, 5/5\\
-H-PCA21 & Inverse-squared KNN    & 0.194 & $-$0.255 & 0.072 & 0.040 & 5/5, 5/5\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The complete-group sensitivity (Table~\ref{tab:cr-sensitivity}) preserves every coefficient direction in both spaces and learners. The H-PCA21 KNN Contrast coefficient is attenuated from 0.467 to 0.194, arguing for treating sign stability as the useful pilot result and not treating effect magnitude as fixed.
-
-\subsection{Observed emotion labels}
-
-Class centroids estimated on each outer-training fold were used as ordinary Voronoi sites and evaluated on outer test. Their mean macro-F1/NMI are 0.343/0.270 in A-21 and 0.346/0.200 in H-PCA21. Thus, ordinary centroid Voronoi cells are not faithful enough to identify the prompted labels with the induced regions without qualification.
-
-Relative to the 200 item-site constellations in each fold, observed centroids have more favorable Representation distance than every random draw, but less favorable Contrast than every draw (smoothed favorable ranks 1.000 and 0.005, respectively). This is an extreme compromise, not joint dominance. In all five folds and both spaces, observed centroids jointly dominate all 1{,}000 support-preserving label-permutation centroids ($p_C=p_R=1/1001$; no draw was at least as extreme, so this is the add-one Monte-Carlo resolution floor rather than an estimate of the exact permutation tail probability), but all 1{,}000 centroids of counterfactual induced cells jointly dominate the observed centroids ($p_C=p_R=1$). The observed geometry is thus strongly non-random yet far from the explicit centroidal design reference. A preregistered held-out fidelity criterion would still have to be passed before interpreting this result as evidence about naturalness.
+At fixed empirical centroids, class-specific offsets yield a small but reliable improvement ($0.019$~bits on $A$, $0.023$~bits on $H$). Allowing the sites themselves to move yields a substantially larger improvement ($0.220$~bits on $A$, $0.371$~bits on $H$). Once sites are free, however, the fitted D3 solutions admit prediction-equivalent ordinary-Voronoi reparametrisations, so free power weights do not define an additional predictive class for the fitted solutions considered here. The diagnostics qualify the original ``single-prototype suffices'' reading: single-cell structure is not supported as an intrinsic property---it is the unsupervised estimator that fails, and a discriminatively fit multi-prototype diagram matches (H) or significantly beats (A) D3. Whether the small appraisal-space gain of D4d reflects genuine multi-cell structure or residual capacity effects is a question for confirmatory designs in future work.
 
 \section{Limitations and interpretation}
 
-This is a pilot over two corpora and three base-scale families, not a model-zoo survey. crowd-enVENT labels are elicited by category prompts; direct lexical expressions are masked automatically and imperfectly. The 0.28--0.47~bit conditional gain is conditional on the writer being the rater for both $A$ and $Y$ and conflates text-unexpressed appraisal content with common-rater method variance. The writer-to-reader control addresses this common-rater scale-use component but not shared elicitation dependency: both writer labels and appraisals are responses to the assigned target-emotion prompt, and the inventory measures emotion-relevant evaluations. The Contrast/Representation test (\S\ref{sec:contrast}) is exploratory: it lacks locked new-seed analysis and coefficient uncertainty. Interval estimates throughout are per-contrast 95\% bootstrap intervals rather than multiplicity-adjusted simultaneous coverage; a preregistered multiplicity policy is required for a confirmatory design. No result establishes psychological reality, a metric or convexity claim, causal use by the Transformer, or natural-kind status. The strongest direct statement is that a category label is more or less linearly accessible in a named frozen representation under the locked split, masking, pooling, capacity, and selection protocol. Exploratory cross-corpus VAD comparisons are indirect (different label sets).
+This is a pilot over two corpora and three base-scale families, not a model-zoo survey. crowd-enVENT labels are elicited by category prompts; direct lexical expressions are masked automatically and imperfectly. The 0.28--0.47~bit conditional gain is conditional on the writer being the rater for both $A$ and $Y$ and conflates text-unexpressed appraisal content with common-rater method variance. The writer-to-reader control addresses this common-rater scale-use component but not shared elicitation dependency: both writer labels and appraisals are responses to the assigned target-emotion prompt, and the inventory measures emotion-relevant evaluations. Interval estimates throughout are per-contrast 95\% bootstrap intervals rather than multiplicity-adjusted simultaneous coverage; a preregistered multiplicity policy is required for a confirmatory design. No result establishes psychological reality, a metric or convexity claim, causal use by the Transformer, or natural-kind status. The strongest direct statement is that a category label is more or less linearly accessible in a named frozen representation under the locked split, masking, pooling, capacity, and selection protocol. Exploratory cross-corpus VAD comparisons are indirect (different label sets).
 
 \section{Perspectives}
 
 We consolidate future work into four falsifiable directions.
 
-\textbf{P1.\ Confirmatory design-optimality test.} The exploratory Contrast/Representation results (\S\ref{sec:contrast}) should be replicated under a confirmatory design that freezes complete-group budgets and learner parameters before seeing results; retains repetitions rather than averaging them; estimates coefficient uncertainty with constellation-level clustering or a multilevel model; reports the Contrast--Representation collinearity; and compares observed centroids with support-preserving label permutations and centroids of counterfactual cells under a preregistered fidelity criterion. Correlating Contrast and Representation with held-out code length from the decoder ladder (Table~\ref{tab:ladder}) across folds would directly test whether design-optimality criteria predict probe compression. Independent similarity/typicality data \citep{nosofsky1986attention,shepard1987toward} are required to move from decoder geometry to a psychological conceptual space.
+\textbf{P1.\ Disentangling broad affect from appraisal.} A within-corpus test with items bearing both VAD and 21D appraisals would compare VAD$\to Y$, $H\to Y$, [VAD;$H$]$\to Y$, $A\to Y$, and [A;$H$]$\to Y$ to test whether the appraisal residual is reducible to VAD.
 
-\textbf{P2.\ Disentangling broad affect from appraisal.} A within-corpus test with items bearing both VAD and 21D appraisals would compare VAD$\to Y$, $H\to Y$, [VAD;$H$]$\to Y$, $A\to Y$, and [A;$H$]$\to Y$ to test whether the appraisal residual is reducible to VAD.
+\textbf{P2.\ Removing the common-rater confound.} An adequately powered $A_{\mathrm{reader}}\!\to\!Y_{\mathrm{reader}}$ design with disjoint, larger reader panels for coordinates versus labels would isolate appraisal content from scale-use consistency.
 
-\textbf{P3.\ Removing the common-rater confound.} An adequately powered $A_{\mathrm{reader}}\!\to\!Y_{\mathrm{reader}}$ design with disjoint, larger reader panels for coordinates versus labels would isolate appraisal content from scale-use consistency.
+\textbf{P3.\ Preregistered replication.} The locked split, masking, pooling, capacity, and selection protocol supports a preregistered replication on held-out writers/conversations and additional base-scale families to test layerwise and conditional claims out of sample.
 
-\textbf{P4.\ Preregistered replication.} The locked split, masking, pooling, capacity, and selection protocol supports a preregistered replication on held-out writers/conversations and additional base-scale families to test layerwise and conditional claims out of sample.
+\textbf{P4.\ Conceptual-space tests.} The geometric formulation of decoder partitions as power diagrams motivates future tests of whether these partitions exhibit properties predicted by conceptual-space accounts---Contrast, Representation, similarity judgments, typicality, learnability---but such tests require independent psychological data beyond the decoder-side facts established here.
 
 \section{Conclusion}
 
-Under strict leakage control, emotion categories are linearly accessible mid-to-late in frozen Transformer representations; writer appraisals add 0.28--0.47~bits of conditional information beyond frozen text (the residual observed for 21D appraisals on crowd-enVENT is substantially larger than the $\sim$0.06-bit VAD residual on EmoTwiCS, though whether this difference reflects representational richness or corpus/task differences requires a within-corpus comparison); that gain is largely low-rank---the top three appraisal components recover 67--77\% of it---yet carries a statistically significant fine-grained residual through ten components; a single-prototype power-diagram decoder is the shortest unsupervised description, and targeted diagnostics show that the multi-prototype degradation under $k$-means is an estimator failure---eliminated by a discriminative multi-prototype fit, which significantly improves on D3 in appraisal space---rather than evidence for single-cell geometry; and an exploratory counterfactual-partition test shows that greater Contrast and smaller Representation distance predict better held-out learnability in both appraisal and frozen-text spaces, though observed labels occupy an extreme design trade-off rather than jointly dominating random constellations. These are protocol-relative, decoder-relative facts that motivate, but do not themselves establish, a psychological conceptual-space account.
+Under strict leakage control, emotion categories are linearly accessible mid-to-late in frozen Transformer representations; writer appraisals add 0.28--0.47~bits of conditional information beyond frozen text (the residual observed for 21D appraisals on crowd-enVENT is substantially larger than the $\sim$0.06-bit VAD residual on EmoTwiCS, though whether this difference reflects representational richness or corpus/task differences requires a within-corpus comparison); that gain is largely low-rank---the top three appraisal components recover 67--77\% of it---yet carries a statistically significant fine-grained residual through ten components; a single-prototype power-diagram decoder provides the shortest single-prototype description among the geometric ladder, and targeted diagnostics show that the multi-prototype degradation under $k$-means is an estimator failure---eliminated by a discriminative multi-prototype fit, which significantly improves on D3 in appraisal space---rather than evidence for single-cell geometry. These results establish the representational and decoder-side facts required for future tests of conceptual-space hypotheses.
 
-The exploratory Q4 associations are modest ($R^2=0.04$--$0.30$) but sign-consistent; Contrast and Representation remain collinear and are not identified as separable causal effects.
 
 \paragraph{Code and data availability.} Source code for the public clean-room reconstruction, locked splits, tests, protocols, and content-addressed replication artifacts is available at \url{https://github.com/GwenTsang/frozen-emotion-spaces}. The repository does not redistribute corpus text; it documents how to obtain the original corpora under their respective terms, fetch locked numerical artifacts, and rerun each authenticated analysis. Historical values retained for comparison are explicitly distinguished from new replications.
 

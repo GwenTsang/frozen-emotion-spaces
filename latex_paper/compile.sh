@@ -48,20 +48,26 @@ if ! kpsewhich siunitx.sty >/dev/null 2>&1 && [ ! -f "siunitx.sty" ]; then
 EOS
 fi
 
-# figures placeholder si manquantes (évite File not found)
-for f in results/figures/layerwise_crowd.pdf results/figures/layerwise_emotwics.pdf results/figures/conditional_gain.pdf; do
+# Erreur stricte si une figure requise est manquante — jamais de placeholder
+missing=0
+for f in results/figures/layerwise_crowd.pdf results/figures/layerwise_emotwics.pdf results/figures/conditional_gain.pdf results/figures/multiprot_sites.pdf; do
   if [ ! -f "$f" ]; then
-    echo "Note: $f manquant → placeholder généré"
-    mkdir -p "$(dirname "$f")"
-    name="$(basename "$f" .pdf)"
-    cat > "/tmp/fig_${name}.tex" <<EOS
-\\documentclass{article}\\begin{document}\\pagestyle{empty}\\begin{center}Placeholder for $name\\end{center}\\end{document}
-EOS
-    pdflatex -interaction=nonstopmode -output-directory="$(dirname "$f")" "/tmp/fig_${name}.tex" >/dev/null 2>&1 || true
-    mv "$(dirname "$f")/fig_${name}.pdf" "$f" 2>/dev/null || true
-    rm -f "$(dirname "$f")/fig_${name}.aux" "$(dirname "$f")/fig_${name}.log"
+    echo "Erreur: figure manquante $f — compilation annulée (aucun placeholder ne sera généré)" >&2
+    missing=1
   fi
 done
+# Vérification étendue : toute figure \includegraphics dans le .tex doit exister
+while IFS= read -r fig; do
+  [ -z "$fig" ] && continue
+  if [ ! -f "$fig" ] && [ ! -f "${fig}.pdf" ]; then
+    echo "Erreur: figure manquante $fig (référencée dans $TEX) — compilation annulée" >&2
+    missing=1
+  fi
+done < <(grep -F 'includegraphics' "$TEX" 2>/dev/null | sed -E 's/.*\{([^}]+)\}.*/\1/' || true)
+if [ "$missing" -ne 0 ]; then
+  echo "Erreur: une ou plusieurs figures sont manquantes — $PDF ne sera pas généré" >&2
+  exit 1
+fi
 
 echo "→ pdflatex passe 1/3..."
 pdflatex -interaction=nonstopmode "$TEX" >/dev/null

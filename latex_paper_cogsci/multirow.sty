@@ -1,0 +1,8 @@
+% stub multirow - minimal implementation for paper_clean.tex
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{multirow}[2024/01/01 stub]
+\RequirePackage{array}
+\newcommand{\multirow}[3][c]{%
+  \begin{tabular}[#1]{@{}c@{}}#3\end{tabular}%
+}
+\newcommand{\multirowsetup}{\relax}
