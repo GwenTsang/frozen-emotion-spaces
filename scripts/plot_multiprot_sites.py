@@ -157,8 +157,8 @@ def main() -> None:
     n_classes = len(CROWD_EMOTIONS)
     W, b = fit_d3(Z_tr, y_tr, C_d3, n_classes=n_classes)
     cents = class_centroids(Z_tr, y_tr, n_classes)
-    sites_d4 = fit_class_kmeans(Z_tr, y_tr, m_d4, n_classes=n_classes, seed=20240804 + 97 * args.fold)
-    sites_d4c = fit_class_kmeans_constrained(Z_tr, y_tr, m_d4, n_classes=n_classes, seed=20240804 + 97 * args.fold)
+    sites_d4, _ = fit_class_kmeans(Z_tr, y_tr, m_d4, n_classes=n_classes, seed=20240804 + 97 * args.fold)
+    sites_d4c, _ = fit_class_kmeans_constrained(Z_tr, y_tr, m_d4, n_classes=n_classes, seed=20240804 + 97 * args.fold)
     _, omega_d3 = d3_sites_weights(W, b)
     sites_d4d, _ = fit_d4_discriminative(
         Z_tr, y_tr, C_d4d,

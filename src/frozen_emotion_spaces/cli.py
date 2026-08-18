@@ -277,6 +277,7 @@ def build_parser() -> argparse.ArgumentParser:
         "run-decoder-ladder",
         help="run the D0-D4 geometric decoder ladder and multi-prototype diagnostics",
     )
+    ladder.add_argument("--output", type=Path, required=True)
     ladder.add_argument("--archive", type=Path, required=True)
     ladder.add_argument("--splits", type=Path, required=True)
     ladder.add_argument("--space", choices=("A", "H"), required=True)
@@ -290,7 +291,13 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="subset of decoder names to run (default: all registered decoders)",
     )
-    ladder.add_argument("--output", type=Path, required=True)
+    ladder.add_argument(
+        "--folds",
+        nargs="+",
+        type=int,
+        default=None,
+        help="subset of outer fold indices to run (default: all folds)",
+    )
     ladder.set_defaults(handler=_run_decoder_ladder)
 
     emotwics_layer = commands.add_parser(
@@ -772,6 +779,7 @@ def _run_decoder_ladder(arguments: argparse.Namespace) -> None:
     from .decoder_ladder import DECODERS
 
     decoders = tuple(arguments.decoders) if arguments.decoders else DECODERS
+    folds = tuple(arguments.folds) if arguments.folds else None
     artifact = run_decoder_ladder(
         arguments.output,
         space=arguments.space,
@@ -783,8 +791,8 @@ def _run_decoder_ladder(arguments: argparse.Namespace) -> None:
         inner_folds=splits.crowd_full_inner,
         pca_dim=arguments.pca_dim,
         decoders=decoders,
+        folds=folds,
     )
-    _print_artifact(artifact.directory, artifact.metadata)
 
 
 def _probe_emotwics_layer(arguments: argparse.Namespace) -> None:

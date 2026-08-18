@@ -256,8 +256,11 @@ def fit_class_kmeans(
     n_classes: int,
     seed: int,
     n_restarts: int = KMEANS_RESTARTS,
-) -> FloatArray:
-    """Unsupervised per-class k-means sites, shape ``(K, m, d)`` (D4)."""
+) -> tuple[FloatArray, FloatArray]:
+    """Unsupervised per-class k-means sites, shape ``(K, m, d)`` (D4).
+
+    Returns ``(sites, omega)`` with zero offsets, matching the D4d signature.
+    """
 
     dim = Z.shape[1]
     sites = np.zeros((n_classes, m, dim), dtype=np.float64)
@@ -267,7 +270,8 @@ def fit_class_kmeans(
             n_clusters=m, n_init=n_restarts, random_state=seed + k,
         ).fit(Zk)
         sites[k] = km.cluster_centers_
-    return sites
+    omega = np.zeros((n_classes, m), dtype=np.float64)
+    return sites, omega
 
 
 def fit_class_kmeans_constrained(
@@ -279,12 +283,14 @@ def fit_class_kmeans_constrained(
     seed: int,
     n_restarts: int = KMEANS_RESTARTS,
     max_iter: int = 100,
-) -> FloatArray:
+) -> tuple[FloatArray, FloatArray]:
     """Per-class k-means with site 0 frozen at the class centroid (D4c).
 
     The frozen centroid is always one of the ``m`` sites; Lloyd iterations
     update only the remaining ``m - 1`` centers.  The best of ``n_restarts``
     random (k-means++) initializations by within-class inertia is kept.
+
+    Returns ``(sites, omega)`` with zero offsets, matching the D4d signature.
     """
 
     dim = Z.shape[1]
@@ -321,7 +327,8 @@ def fit_class_kmeans_constrained(
                 best_inertia = inertia
                 best = centers
         sites[k] = best if best is not None else np.tile(centroid, (m, 1))
-    return sites
+    omega = np.zeros((n_classes, m), dtype=np.float64)
+    return sites, omega
 
 
 def _kmeanspp_free(
@@ -347,15 +354,23 @@ def _kmeanspp_free(
 
 
 def multiprot_proba(
-    Z: FloatArray, sites: FloatArray, gamma: float
+    Z: FloatArray, sites: FloatArray, gamma: float, omega: FloatArray | None = None
 ) -> FloatArray:
-    """Multi-prototype probabilities: softmax over ``-gamma * min_j d^2``."""
+    """Multi-prototype probabilities: softmax over logsumexp_j(-gamma*d^2 + omega).
+
+    Uses ``logsumexp`` over sites (matching D4d) instead of ``min_j`` so that
+    unsupervised and discriminative multi-prototype decoders share the same
+    aggregation.  Per-site offsets ``omega`` default to zero.
+    """
 
     n = Z.shape[0]
     n_classes, m, _ = sites.shape
     flat = sites.reshape(n_classes * m, -1)
     d2 = _squared_distances(Z, flat).reshape(n, n_classes, m)
-    return _softmax(-float(gamma) * d2.min(axis=2))
+    if omega is None:
+        omega = np.zeros((n_classes, m), dtype=np.float64)
+    A = omega[None, :, :] - float(gamma) * d2
+    return _softmax(logsumexp(A, axis=2))
 
 
 def fit_d4_discriminative(
@@ -371,8 +386,17 @@ def fit_d4_discriminative(
 
     Class score: ``s_k(z) = LSE_j( omega_kj - ||z - p_kj||^2 )``.  For
     ``m = 1`` this is exactly a single power-diagram score, so D3 is a fitted
-    special case.  The L2 penalty applies to ``2 * p`` and ``omega``,
-    mirroring the linear-probe penalty of D3.
+    special case.
+
+    The L2 penalty mirrors D3 exactly: D3 penalises ``||W||^2 + ||b||^2``
+    where ``W_k = 2 * p_k`` and ``b_k = omega_k - ||p_k||^2`` (the effective
+    linear-probe parameters).  With ``m > 1`` sites per class, the same
+    penalty is applied to every effective parameter pair:
+
+        ``0.5 * reg * sum_{k,j}( 4 * ||p_kj||^2 + (omega_kj - ||p_kj||^2)^2 )``
+
+    This eliminates the gauge-dependent over-regularisation that previously
+    penalised ``||omega||^2`` instead of ``||b||^2``.
     """
 
     n, dim = Z.shape
@@ -396,12 +420,17 @@ def fit_d4_discriminative(
         coeff = (Pc / n)[:, :, None] * q  # dLoss/dA (n,K,m)
         grad_sites = np.einsum("nkm,nkmd->kmd", coeff, 2.0 * diff)
         grad_omega = coeff.sum(axis=0)
+
+        # Effective-parameter penalty matching D3: ||W||^2 + ||b||^2
+        # where W_kj = 2*p_kj, b_kj = omega_kj - ||p_kj||^2.
+        p_sq = np.einsum("kmd,kmd->km", P_sites, P_sites)  # ||p_kj||^2
+        omega_tilde = omega - p_sq
         loss += 0.5 * reg * (
-            4.0 * float(np.einsum("kmd,kmd->", P_sites, P_sites))
-            + float(np.einsum("km,km->", omega, omega))
+            4.0 * float(p_sq.sum())
+            + float(np.einsum("km,km->", omega_tilde, omega_tilde))
         )
-        grad_sites += reg * 4.0 * P_sites
-        grad_omega += reg * omega
+        grad_sites += reg * (4.0 * P_sites - 2.0 * omega_tilde[:, :, None] * P_sites)
+        grad_omega += reg * omega_tilde
         return loss, np.concatenate([grad_sites.ravel(), grad_omega.ravel()])
 
     result = minimize(
@@ -414,12 +443,8 @@ def fit_d4_discriminative(
 
 
 def d4d_proba(Z: FloatArray, sites: FloatArray, omega: FloatArray) -> FloatArray:
-    n = Z.shape[0]
-    n_classes, m, _ = sites.shape
-    flat = sites.reshape(n_classes * m, -1)
-    d2 = _squared_distances(Z, flat).reshape(n, n_classes, m)
-    A = omega[None, :, :] - d2
-    return _softmax(logsumexp(A, axis=2))
+    """Discriminative multi-prototype probabilities (gamma=1, logsumexp)."""
+    return multiprot_proba(Z, sites, 1.0, omega)
 
 
 # ---------------------------------------------------------------------------
@@ -504,23 +529,23 @@ def _fit_predict_decoder(
         return d3_proba(Z_ev, W, b)
     m = int(params["m"])
     if decoder == "D4":
-        sites = fit_class_kmeans(Z_tr, y_tr, m, n_classes=n_classes, seed=seed)
-        return multiprot_proba(Z_ev, sites, float(params["gamma"]))
+        sites, omega = fit_class_kmeans(Z_tr, y_tr, m, n_classes=n_classes, seed=seed)
+        return multiprot_proba(Z_ev, sites, float(params["gamma"]), omega)
     if decoder == "D4c":
-        sites = fit_class_kmeans_constrained(
+        sites, omega = fit_class_kmeans_constrained(
             Z_tr, y_tr, m, n_classes=n_classes, seed=seed
         )
-        return multiprot_proba(Z_ev, sites, float(params["gamma"]))
+        return multiprot_proba(Z_ev, sites, float(params["gamma"]), omega)
     if decoder == "D4d":
-        init = fit_class_kmeans(Z_tr, y_tr, m, n_classes=n_classes, seed=seed)
+        init_sites, _ = fit_class_kmeans(Z_tr, y_tr, m, n_classes=n_classes, seed=seed)
         W, b = _d3(float(params["C"]))
         _, omega_d3 = d3_sites_weights(W, b)
         init_weights = np.repeat(omega_d3[:, None], m, axis=1)
         sites, omega = fit_d4_discriminative(
             Z_tr, y_tr, float(params["C"]),
-            init_sites=init, init_weights=init_weights,
+            init_sites=init_sites, init_weights=init_weights,
         )
-        return d4d_proba(Z_ev, sites, omega)
+        return multiprot_proba(Z_ev, sites, 1.0, omega)
     raise ValueError(f"unknown decoder: {decoder!r}")
 
 
@@ -554,6 +579,7 @@ def run_decoder_ladder(
     class_names: Sequence[str] = CROWD_EMOTIONS,
     decoders: Sequence[str] = DECODERS,
     seed: int = SEED,
+    folds: Sequence[int] | None = None,
 ) -> DecoderLadderArtifact:
     """Run the nested decoder ladder and publish an immutable artifact.
 
@@ -581,8 +607,19 @@ def run_decoder_ladder(
 
     oof_frames: dict[str, list[pd.DataFrame]] = {d: [] for d in decoders}
     selection_rows: list[dict[str, Any]] = []
-    for outer_fold in sorted(outer["test_fold"].unique()):
+    all_folds = sorted(outer["test_fold"].unique())
+    n_outer_folds = len(all_folds)
+    total_start = time.monotonic()
+    for outer_fold in all_folds:
+        if folds is not None and outer_fold not in folds:
+            continue
         fold_start = time.monotonic()
+        print(
+            f"[decoder-ladder] space={space} "
+            f"fold {outer_fold + 1}/{n_outer_folds} "
+            f"({time.monotonic() - total_start:.0f}s elapsed)",
+            file=sys.stderr, flush=True,
+        )
         test_ids = outer.loc[outer["test_fold"] == outer_fold, "item_id"].astype(str)
         train_ids = outer.loc[outer["test_fold"] != outer_fold, "item_id"].astype(str)
         te_idx = np.array([id_to_row[v] for v in test_ids], dtype=np.int64)
@@ -618,10 +655,17 @@ def run_decoder_ladder(
 
         for decoder in decoders:
             grid = _param_grid(decoder)
+            n_configs = len(grid)
+            print(
+                f"[decoder-ladder]   {decoder}: grid {n_configs} configs "
+                f"× {len(validation_folds)} inner folds",
+                file=sys.stderr, flush=True,
+            )
             best_params: dict[str, float] | None = None
             best_loss = np.inf
             d3_cache: dict[tuple[float, int], tuple[FloatArray, FloatArray]] = {}
-            for params in grid:
+            dec_start = time.monotonic()
+            for ci, params in enumerate(grid):
                 losses = []
                 for v in validation_folds:
                     Z_tr_i, y_tr_i, Z_va_i, y_va_i = _inner_split(v)
@@ -637,6 +681,12 @@ def run_decoder_ladder(
                 if mean_loss < best_loss:
                     best_loss = mean_loss
                     best_params = dict(params)
+                if (ci + 1) % 3 == 0 or ci + 1 == n_configs:
+                    print(
+                        f"[decoder-ladder]   {decoder}: config {ci + 1}/{n_configs} "
+                        f"({time.monotonic() - dec_start:.0f}s)",
+                        file=sys.stderr, flush=True,
+                    )
             assert best_params is not None
             selection_rows.append(
                 {"outer_fold": int(outer_fold), "decoder": decoder, **best_params}
@@ -648,16 +698,21 @@ def run_decoder_ladder(
             )
             elapsed = time.monotonic() - fold_start
             print(
-                f"[decoder-ladder] space={space} outer_fold={outer_fold} "
-                f"decoder={decoder} done ({elapsed:.0f}s)",
-                file=sys.stderr,
-                flush=True,
+                f"[decoder-ladder]   {decoder} done "
+                f"({time.monotonic() - dec_start:.0f}s, fold total {elapsed:.0f}s)",
+                file=sys.stderr, flush=True,
             )
             oof_frames[decoder].append(
                 _oof_frame(
                     test_ids.tolist(), y_te, proba, class_names, int(outer_fold)
                 )
             )
+        print(
+            f"[decoder-ladder] fold {outer_fold + 1}/{n_outer_folds} done "
+            f"({time.monotonic() - fold_start:.0f}s, "
+            f"total {time.monotonic() - total_start:.0f}s)",
+            file=sys.stderr, flush=True,
+        )
 
     oof_parts = []
     for decoder in decoders:

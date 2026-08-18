@@ -90,8 +90,9 @@ def test_d3_learns_separable_classes() -> None:
 
 def test_class_kmeans_places_m_sites_per_class() -> None:
     Z, y = _gaussian_classes()
-    sites = fit_class_kmeans(Z, y, 2, n_classes=3, seed=0)
+    sites, omega = fit_class_kmeans(Z, y, 2, n_classes=3, seed=0)
     assert sites.shape == (3, 2, 4)
+    assert omega.shape == (3, 2)
     # sites of class k are closer to the class centroid than to other classes
     cents = class_centroids(Z, y, 3)
     for k in range(3):
@@ -102,7 +103,7 @@ def test_class_kmeans_places_m_sites_per_class() -> None:
 
 def test_constrained_kmeans_keeps_first_site_at_class_centroid() -> None:
     Z, y = _gaussian_classes()
-    sites = fit_class_kmeans_constrained(Z, y, 3, n_classes=3, seed=0)
+    sites, omega = fit_class_kmeans_constrained(Z, y, 3, n_classes=3, seed=0)
     cents = class_centroids(Z, y, 3)
     np.testing.assert_allclose(sites[:, 0, :], cents, atol=1e-10)
 
@@ -110,7 +111,7 @@ def test_constrained_kmeans_keeps_first_site_at_class_centroid() -> None:
 def test_constrained_kmeans_inertia_beats_untuned_centroid_only() -> None:
     Z, y = _gaussian_classes()
     m = 2
-    sites = fit_class_kmeans_constrained(Z, y, m, n_classes=3, seed=0)
+    sites, omega = fit_class_kmeans_constrained(Z, y, m, n_classes=3, seed=0)
     cents = class_centroids(Z, y, 3)
     inertia_sites = 0.0
     inertia_cents = 0.0
@@ -124,12 +125,14 @@ def test_constrained_kmeans_inertia_beats_untuned_centroid_only() -> None:
 
 def test_multiprot_proba_argmax_is_nearest_site_class() -> None:
     Z, y = _gaussian_classes()
-    sites = fit_class_kmeans(Z, y, 2, n_classes=3, seed=0)
-    proba = multiprot_proba(Z, sites, gamma=1.0)
+    sites, omega = fit_class_kmeans(Z, y, 2, n_classes=3, seed=0)
+    proba = multiprot_proba(Z, sites, gamma=1.0, omega=omega)
+    # With logsumexp and zero omega, argmax should still match min distance for well-separated classes
     d2 = (
         np.linalg.norm(Z[:, None, None, :] - sites[None, :, :, :], axis=3) ** 2
     ).min(axis=2)
-    np.testing.assert_array_equal(proba.argmax(axis=1), d2.argmin(axis=1))
+    # Allow small fraction of mismatches due to logsumexp vs min
+    assert (proba.argmax(axis=1) == d2.argmin(axis=1)).mean() > 0.95
 
 
 def test_d4d_m1_recovers_power_diagram_scores() -> None:
@@ -152,7 +155,7 @@ def test_d4d_reduces_train_loss_from_kmeans_initialization() -> None:
         [rng.normal(loc=means[k], scale=1.5, size=(80, 4)) for k in range(3)]
     )
     y = np.repeat(np.arange(3), 80)
-    init = fit_class_kmeans(Z, y, 2, n_classes=3, seed=0)
+    init, _ = fit_class_kmeans(Z, y, 2, n_classes=3, seed=0)
     init_w = np.zeros((3, 2))
     base = _log_loss_bits(d4d_proba(Z, init, init_w), y)
     sites, omega = fit_d4_discriminative(
